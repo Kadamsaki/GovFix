@@ -44,31 +44,21 @@ def test_suite():
     assert res.status_code == 201, f"Expected 201, got {res.status_code}: {res.text}"
     new_complaint = res.json()
     cid = new_complaint["id"]
-    assert new_complaint["status"] == "SUBMITTED"
-    print(f" PASS: Complaint {cid} created with status SUBMITTED")
+    # System automatically assigns officer according to problem category (Water Supply -> officer-1)
+    assert new_complaint["status"] == "ASSIGNED", f"Expected ASSIGNED, got {new_complaint['status']}"
+    assert new_complaint["assigned_officer_id"] == "officer-1", f"Expected officer-1, got {new_complaint['assigned_officer_id']}"
+    assert new_complaint["assigned_department"] == "Water Supply Department"
+    print(f" PASS: Complaint {cid} created and automatically assigned to officer-1 (Water Supply) with status ASSIGNED")
 
     # -------------------------------------------------------------
-    # TEST 2: Supervisor moves it to UNDER_REVIEW
+    # TEST 2: Supervisor / Admin Reassigns / Confirms Officer
     # -------------------------------------------------------------
-    print("\n[TEST 2] Supervisor moves complaint to UNDER_REVIEW...")
-    res = client.post(
-        f"/api/v1/complaints/{cid}/transition",
-        headers=supervisor_headers,
-        json={"action": "REVIEW", "remarks": "Supervisor reviewed and verified ward location"},
-    )
-    assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
-    assert res.json()["current_status"] == "UNDER_REVIEW"
-    print(f" PASS: Complaint {cid} moved to UNDER_REVIEW by Supervisor")
-
-    # -------------------------------------------------------------
-    # TEST 3: Supervisor assigns an officer
-    # -------------------------------------------------------------
-    print("\n[TEST 3] Supervisor assigns an officer (Er. Amit Deshmukh)...")
+    print("\n[TEST 2] Supervisor verifies / reassigns officer...")
     res = client.post(
         f"/api/v1/complaints/{cid}/transition",
         headers=supervisor_headers,
         json={
-            "action": "ASSIGN",
+            "action": "REASSIGN",
             "assigned_officer_id": "officer-1",
             "remarks": "Dispatched to Executive Engineer - Water Supply",
         },
@@ -77,7 +67,7 @@ def test_suite():
     data = res.json()
     assert data["current_status"] == "ASSIGNED"
     assert data["complaint"]["assigned_officer_id"] == "officer-1"
-    print(f" PASS: Complaint {cid} assigned to officer-1, status is ASSIGNED")
+    print(f" PASS: Complaint {cid} assignment verified for officer-1, status is ASSIGNED")
 
     # -------------------------------------------------------------
     # TEST 4: Assigned officer moves it to IN_PROGRESS

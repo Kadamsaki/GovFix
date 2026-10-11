@@ -21,9 +21,12 @@ class WorkflowEngine:
     TRANSITION_MATRIX = {
         "SUBMITTED": {
             "UNDER_REVIEW": ["supervisor", "admin"],
+            "ASSIGNED": ["supervisor", "admin", "officer"],
+            "IN_PROGRESS": ["officer", "admin"],
         },
         "UNDER_REVIEW": {
-            "ASSIGNED": ["supervisor", "admin"],
+            "ASSIGNED": ["supervisor", "admin", "officer"],
+            "IN_PROGRESS": ["officer", "admin"],
         },
         "ASSIGNED": {
             "IN_PROGRESS": ["officer", "admin"],
@@ -232,6 +235,24 @@ class WorkflowEngine:
             complaint.assigned_officer_id = officer.id
             complaint.assigned_officer_name = officer.name
             complaint.assigned_department = officer.department or complaint.assigned_department
+            complaint.assigned_at = datetime.datetime.utcnow()
+
+            # SLA rule: Never reset the deadline just because the complaint is reassigned.
+            # If authorized supervisor/admin explicitly requests a new deadline, record old, new, actor and reason.
+            if request.new_deadline and user.role in ["supervisor", "admin"]:
+                old_dl_str = complaint.resolution_deadline.isoformat() if complaint.resolution_deadline else "None"
+                complaint.resolution_deadline = request.new_deadline
+                cls.record_audit(
+                    db=db,
+                    complaint_id=complaint_id,
+                    user=user,
+                    prev_status=prev_status,
+                    req_status=target_status,
+                    action="UPDATE_SLA_DEADLINE",
+                    is_accepted=True,
+                    reason=f"SLA deadline updated from {old_dl_str} to {request.new_deadline.isoformat()}. Reason: {request.sla_reason or 'Supervisor administrative adjustment'}",
+                    metadata={"old_deadline": old_dl_str, "new_deadline": request.new_deadline.isoformat()},
+                )
 
         # Condition B: Moving to RESOLVED requires resolution remarks and supporting proof
         elif target_status == "RESOLVED":
@@ -301,6 +322,11 @@ class WorkflowEngine:
             reason=success_remarks,
             metadata={
                 "officer_assigned": complaint.assigned_officer_name,
+                "officer_id": complaint.assigned_officer_id,
+                "assigned_department": complaint.assigned_department,
+                "assigned_at": complaint.assigned_at.isoformat() if complaint.assigned_at else None,
+                "resolution_deadline": complaint.resolution_deadline.isoformat() if complaint.resolution_deadline else None,
+                "priority": complaint.priority,
                 "proof_attached": bool(complaint.resolution_proof_url),
             },
         )

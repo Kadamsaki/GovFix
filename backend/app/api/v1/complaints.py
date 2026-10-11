@@ -22,10 +22,127 @@ from app.services.workflow import WorkflowEngine
 router = APIRouter(prefix="/complaints", tags=["Complaints & Workflow"])
 
 
-@router.get("", response_model=List[ComplaintResponse], summary="List Complaints (Role Filtered)")
+ROUTE_DEPARTMENT_MAP = {
+    "water": "Water Supply Department",
+    "jal": "Water Supply Department",
+    "pipeline": "Water Supply Department",
+    "road": "Roads & Public Works Department",
+    "pothole": "Roads & Public Works Department",
+    "footpath": "Roads & Public Works Department",
+    "street": "Roads & Public Works Department",
+    "light": "Electrical Department",
+    "pole": "Electrical Department",
+    "electricity": "Electrical Department",
+    "electrical": "Electrical Department",
+    "garbage": "Sanitation Department",
+    "sanitation": "Sanitation Department",
+    "waste": "Sanitation Department",
+    "kachra": "Sanitation Department",
+    "safai": "Sanitation Department",
+    "drain": "Drainage Department",
+    "sewage": "Drainage Department",
+    "gutter": "Drainage Department",
+    "nalah": "Drainage Department",
+}
+
+OFFICER_CATEGORY_MAP = {
+    # Water Supply -> Er. Amit Deshmukh (officer-1)
+    "water": "officer-1",
+    "jal": "officer-1",
+    "pipeline": "officer-1",
+    # Roads & Public Works -> Er. Rajesh Sharma (officer-2)
+    "road": "officer-2",
+    "pothole": "officer-2",
+    "footpath": "officer-2",
+    "street": "officer-2",
+    # Electrical & Lighting -> Er. Sandeep More (officer-3)
+    "light": "officer-3",
+    "pole": "officer-3",
+    "electricity": "officer-3",
+    "electrical": "officer-3",
+    # Sanitation & Solid Waste -> Er. Ramesh Shinde (officer-4)
+    "garbage": "officer-4",
+    "waste": "officer-4",
+    "sanitat": "officer-4",
+    "kachra": "officer-4",
+    "safai": "officer-4",
+    # Drainage & Sewage -> Er. Ganesh Jadhav (officer-5)
+    "drain": "officer-5",
+    "sewag": "officer-5",
+    "gutter": "officer-5",
+    "nalah": "officer-5",
+}
+
+DEPARTMENT_DEFAULT_OFFICER_MAP = {
+    "Water Supply Department": "officer-1",
+    "Roads & Public Works Department": "officer-2",
+    "Electrical Department": "officer-3",
+    "Sanitation Department": "officer-4",
+    "Drainage Department": "officer-5",
+    "Public Works & Grievance Cell": "officer-2",
+}
+
+SLA_HOURS_MAP = {
+    "Urgent": 6,
+    "High": 24,
+    "Medium": 48,
+    "Low": 72,
+}
+
+
+def route_department_for_category(category: str) -> str:
+    cat = (category or "").lower()
+    for key, dept in ROUTE_DEPARTMENT_MAP.items():
+        if key in cat:
+            return dept
+    return "Public Works & Grievance Cell"
+
+
+def auto_assign_officer_for_category(category: str, department: str, db: Session) -> Optional[User]:
+    """
+    Automatically selects and assigns the designated municipal field officer
+    based on the complaint problem category and department.
+    """
+    cat = (category or "").lower()
+    target_officer_id = None
+
+    for key, off_id in OFFICER_CATEGORY_MAP.items():
+        if key in cat:
+            target_officer_id = off_id
+            break
+
+    if not target_officer_id and department:
+        target_officer_id = DEPARTMENT_DEFAULT_OFFICER_MAP.get(department)
+
+    if target_officer_id:
+        officer = db.query(User).filter(User.id == target_officer_id).first()
+        if officer:
+            return officer
+
+    if department:
+        dept_clean = department.replace(" Department", "").strip()
+        officer = (
+            db.query(User)
+            .filter(User.role == "officer", User.department.ilike(f"%{dept_clean}%"))
+            .first()
+        )
+        if officer:
+            return officer
+
+    return db.query(User).filter(User.role == "officer").first()
+
+
+def calculate_sla_deadline(created_at: datetime.datetime, priority: str) -> datetime.datetime:
+    priority_clean = (priority or "Medium").capitalize()
+    hours = SLA_HOURS_MAP.get(priority_clean, 48)
+    return created_at + datetime.timedelta(hours=hours)
+
+
+@router.get("", response_model=List[ComplaintResponse], summary="List Complaints (Role Filtered & SLA Aware)")
 def list_complaints(
     status_filter: Optional[str] = Query(None, alias="status"),
     category: Optional[str] = None,
+    priority: Optional[str] = None,
     search: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -33,7 +150,7 @@ def list_complaints(
     """
     Returns complaints strictly filtered by the authenticated user's role:
     - Citizen: views only their own complaints.
-    - Officer: views only complaints assigned to them.
+    - Officer: views only complaints assigned to them, with urgent/overdue highlighted.
     - Supervisor: views complaints within their jurisdiction/department.
     - Admin: views all complaints across the municipality.
     """
@@ -47,8 +164,9 @@ def list_complaints(
     elif current_user.role == "supervisor":
         # Supervisors see complaints in their ward or department if configured, or all within jurisdiction
         if current_user.department and current_user.department != "Public Works & Grievance Cell":
+            dept_clean = current_user.department.replace(" Department", "").strip()
             query = query.filter(
-                (Complaint.assigned_department == current_user.department)
+                (Complaint.assigned_department.ilike(f"%{dept_clean}%"))
                 | (Complaint.ward == current_user.ward)
             )
     # Admin sees all complaints without filters
@@ -58,6 +176,8 @@ def list_complaints(
         query = query.filter(Complaint.status == status_filter.upper())
     if category:
         query = query.filter(Complaint.category == category)
+    if priority:
+        query = query.filter(Complaint.priority == priority.capitalize())
     if search:
         search_fmt = f"%{search.strip()}%"
         query = query.filter(
@@ -67,7 +187,20 @@ def list_complaints(
             | (Complaint.category.ilike(search_fmt))
         )
 
-    return query.order_by(desc(Complaint.created_at)).all()
+    results = query.order_by(desc(Complaint.created_at)).all()
+
+    # For officers, sort urgent and overdue complaints prominently to top
+    if current_user.role == "officer":
+        def officer_sort_key(c):
+            if c.status in ["RESOLVED", "CLOSED"]:
+                return (2, 0)
+            if c.is_overdue:
+                return (0, 0)
+            priority_ranks = {"Urgent": 1, "High": 2, "Medium": 3, "Low": 4}
+            return (1, priority_ranks.get(c.priority, 5))
+        results = sorted(results, key=officer_sort_key)
+
+    return results
 
 
 @router.get("/stats/summary", summary="Workflow Statistics Overview")
@@ -149,6 +282,19 @@ def submit_complaint(
         unique_num = random.randint(1000, 9999)
         complaint_id = f"GFX-2026-{unique_num}"
 
+    assigned_dept = route_department_for_category(payload.category)
+    now = datetime.datetime.utcnow()
+    clean_priority = (payload.priority or "Medium").capitalize()
+    if clean_priority not in SLA_HOURS_MAP:
+        clean_priority = "Medium"
+    deadline = calculate_sla_deadline(now, clean_priority)
+
+    # Automatically assign the designated municipal field officer according to problem category
+    assigned_officer = auto_assign_officer_for_category(payload.category, assigned_dept, db)
+    officer_id = assigned_officer.id if assigned_officer else None
+    officer_name = assigned_officer.name if assigned_officer else None
+    initial_status = "ASSIGNED" if officer_id else "SUBMITTED"
+
     new_complaint = Complaint(
         id=complaint_id,
         citizen_id=current_user.id,
@@ -160,16 +306,23 @@ def submit_complaint(
         ward=payload.ward,
         location=payload.location,
         landmark=payload.landmark,
-        priority=payload.priority or "Medium",
-        status="SUBMITTED",
-        created_at=datetime.datetime.utcnow(),
-        updated_at=datetime.datetime.utcnow(),
+        priority=clean_priority,
+        status=initial_status,
+        assigned_department=assigned_dept,
+        assigned_officer_id=officer_id,
+        assigned_officer_name=officer_name,
+        assigned_at=now if officer_id else None,
+        resolution_deadline=deadline,
+        attachment_url=payload.attachment_url,
+        created_at=now,
+        updated_at=now,
     )
     db.add(new_complaint)
     db.commit()
     db.refresh(new_complaint)
 
-    # Audit logging for initial submission
+    # Audit logging for initial submission with SLA and department details
+    sla_h = SLA_HOURS_MAP.get(clean_priority, 48)
     WorkflowEngine.record_audit(
         db=db,
         complaint_id=new_complaint.id,
@@ -178,8 +331,34 @@ def submit_complaint(
         req_status="SUBMITTED",
         action="SUBMIT_COMPLAINT",
         is_accepted=True,
-        reason="Complaint successfully registered on citizen grievance portal.",
+        reason=f"Complaint registered by citizen. System automatically routed to {assigned_dept} with {clean_priority} SLA ({sla_h}h deadline).",
+        metadata={
+            "department": assigned_dept,
+            "priority": clean_priority,
+            "sla_hours": sla_h,
+            "resolution_deadline": deadline.isoformat(),
+            "has_attachment": bool(payload.attachment_url),
+        },
     )
+
+    # Audit logging for automatic officer assignment
+    if officer_id:
+        WorkflowEngine.record_audit(
+            db=db,
+            complaint_id=new_complaint.id,
+            user=current_user,
+            prev_status="SUBMITTED",
+            req_status="ASSIGNED",
+            action="AUTO_ASSIGN_OFFICER",
+            is_accepted=True,
+            reason=f"System automatically assigned field officer {officer_name} ({assigned_officer.designation or assigned_dept}) according to problem category '{payload.category}'.",
+            metadata={
+                "department": assigned_dept,
+                "assigned_officer_id": officer_id,
+                "assigned_officer_name": officer_name,
+                "auto_assigned": True,
+            },
+        )
 
     return new_complaint
 
