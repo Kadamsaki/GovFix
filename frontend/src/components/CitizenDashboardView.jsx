@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   Clock,
@@ -20,13 +20,20 @@ import {
   CheckCircle,
   Eye,
   Calendar,
+  ExternalLink,
+  ShieldAlert,
+  ShieldCheck,
+  RotateCcw,
 } from 'lucide-react';
-import { mockComplaintsData } from '../data/mockComplaints';
+import WorkflowTracker from './WorkflowTracker';
+import AuditTrailModal from './AuditTrailModal';
+import { fetchComplaints, fetchAuditLogs, transitionComplaint } from '../services/api';
 
 const categoryIcons = {
   'Water Supply': Droplets,
   'Streetlights': Lightbulb,
   'Roads & Potholes': AlertTriangle,
+  'Waste Management & Sanitation': Layers,
 };
 
 export default function CitizenDashboardView({
@@ -34,20 +41,95 @@ export default function CitizenDashboardView({
   onBackToPortal,
   onSignOut,
   onOpenRegister,
+  initialSelectedId = null,
+  refreshKey = 0,
   t,
 }) {
-  const [selectedComplaintId, setSelectedComplaintId] = useState(mockComplaintsData[0].id);
-  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'in_progress' | 'assigned' | 'resolved'
+  const [complaints, setComplaints] = useState([]);
+  const [selectedComplaintId, setSelectedComplaintId] = useState(initialSelectedId || null);
+  const [audits, setAudits] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'SUBMITTED' | 'IN_PROGRESS' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED'
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+  const [feedbackNotice, setFeedbackNotice] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const loadComplaints = async (preferredId = null) => {
+    setLoading(true);
+    try {
+      const data = await fetchComplaints(citizenUser.id);
+      setComplaints(data);
+      const targetId = preferredId || initialSelectedId;
+      if (targetId && data.some((c) => c.id === targetId)) {
+        setSelectedComplaintId(targetId);
+      } else if (data.length > 0) {
+        if (!selectedComplaintId || !data.some((c) => c.id === selectedComplaintId)) {
+          setSelectedComplaintId(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load citizen complaints:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadComplaints(initialSelectedId);
+  }, [citizenUser.id, refreshKey, initialSelectedId]);
 
   // Find currently selected complaint
   const activeComplaint =
-    mockComplaintsData.find((c) => c.id === selectedComplaintId) || mockComplaintsData[0];
+    complaints.find((c) => c.id === selectedComplaintId) || complaints[0];
+
+  useEffect(() => {
+    if (activeComplaint) {
+      fetchAuditLogs(activeComplaint.id, citizenUser.id)
+        .then(setAudits)
+        .catch(() => setAudits([]));
+    }
+  }, [activeComplaint?.id, citizenUser.id]);
+
+  // Citizen satisfaction confirmation
+  const handleCitizenSatisfaction = (isSatisfied) => {
+    setFeedbackNotice({
+      type: 'success',
+      text: isSatisfied
+        ? 'Thank you! Your satisfaction feedback has been recorded for municipal quality audit.'
+        : 'Thank you for your feedback. Our citizen grievance cell will inspect this grievance.',
+    });
+    setTimeout(() => setFeedbackNotice(null), 4000);
+  };
+
+  // Attempt unauthorized status change to verify citizen role restrictions
+  const handleAttemptStatusChange = async () => {
+    if (!activeComplaint) return;
+    setActionLoading(true);
+    setFeedbackNotice(null);
+    try {
+      await transitionComplaint(
+        activeComplaint.id,
+        { action: 'START_WORK' },
+        citizenUser.id
+      );
+    } catch (err) {
+      setFeedbackNotice({
+        type: 'rejected',
+        text: `[RBAC Enforcement] 403 Forbidden: Citizens are not authorized to alter complaint lifecycle status. Only designated municipal officers and supervisors can advance workflow.`,
+      });
+      // Refresh audits to show logged rejected attempt
+      fetchAuditLogs(activeComplaint.id, citizenUser.id).then(setAudits).catch(() => {});
+      setTimeout(() => setFeedbackNotice(null), 6000);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Filtering complaints
-  const filteredComplaints = mockComplaintsData.filter((c) => {
+  const filteredComplaints = complaints.filter((c) => {
     const matchesFilter =
-      activeFilter === 'all' ? true : c.status === activeFilter;
+      activeFilter === 'all' ? true : c.status.toUpperCase() === activeFilter.toUpperCase();
     const matchesSearch =
       c.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -56,12 +138,12 @@ export default function CitizenDashboardView({
     return matchesFilter && matchesSearch;
   });
 
-  const countInProgress = mockComplaintsData.filter((c) => c.status === 'in_progress').length;
-  const countAssigned = mockComplaintsData.filter((c) => c.status === 'assigned').length;
-  const countResolved = mockComplaintsData.filter((c) => c.status === 'resolved').length;
+  const countInProgress = complaints.filter((c) => c.status === 'IN_PROGRESS').length;
+  const countAssigned = complaints.filter((c) => c.status === 'ASSIGNED').length;
+  const countResolved = complaints.filter((c) => c.status === 'RESOLVED' || c.status === 'CLOSED').length;
 
   return (
-    <div className="min-h-screen bg-gov-bg flex flex-col">
+    <div className="min-h-screen bg-gov-bg flex flex-col font-sans">
       
       {/* 1. Official Citizen Dashboard Header */}
       <header className="bg-gov-navy text-white border-b-4 border-gov-blue shadow-md sticky top-0 z-30">
@@ -80,7 +162,7 @@ export default function CitizenDashboardView({
                   Gov<span className="text-sky-400">Fix</span>
                 </span>
                 <span className="text-[10px] bg-slate-800 text-sky-300 px-2 py-0.5 rounded font-mono border border-slate-700 uppercase">
-                  Citizen Portal
+                  Citizen Portal (RBAC Enforced)
                 </span>
               </div>
               <p className="text-[11px] text-slate-300">
@@ -119,221 +201,186 @@ export default function CitizenDashboardView({
             {/* Sign Out */}
             <button
               onClick={onSignOut}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-950/60 hover:bg-red-900/80 text-red-200 transition-colors cursor-pointer border border-red-800/60 font-semibold"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-900/60 hover:bg-red-800 text-red-200 transition-colors cursor-pointer border border-red-800 font-semibold"
             >
               <LogOut size={14} />
               <span>Sign Out</span>
             </button>
-
           </div>
 
         </div>
       </header>
 
-      {/* 2. Main Dashboard Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         
-        {/* Welcome Banner & Register CTA */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-gov-blue bg-blue-50 px-2.5 py-0.5 rounded">
-              <CheckCircle2 size={13} />
-              <span>Verified Resident Citizen</span>
-            </div>
-            <h1 className="text-2xl font-black text-gov-navy tracking-tight">
-              Welcome, {citizenUser?.name || 'Aarav Sharma'}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-1.5">
-              <MapPin size={14} className="text-slate-400" />
-              <span>Assigned Ward: <strong>{citizenUser?.ward || 'Ward No. 14 (Shivaji Chowk - Station Road)'}</strong></span>
-              <span className="text-slate-300">•</span>
-              <span className="font-mono text-slate-500">Citizen ID: CTZ-8448-WD14</span>
-            </p>
-          </div>
-
-          <button
-            onClick={onOpenRegister}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gov-blue hover:bg-gov-blueHover text-white text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
+        {/* Feedback notification toast */}
+        {feedbackNotice && (
+          <div
+            className={`px-4 py-3 rounded-xl border text-xs flex items-center justify-between shadow-sm animate-fadeIn ${
+              feedbackNotice.type === 'rejected'
+                ? 'bg-rose-50 border-rose-300 text-rose-900'
+                : 'bg-emerald-50 border-emerald-300 text-emerald-900'
+            }`}
           >
-            <Plus size={18} />
-            <span>File a New Grievance</span>
-          </button>
-        </div>
+            <div className="flex items-center gap-2">
+              {feedbackNotice.type === 'rejected' ? (
+                <ShieldAlert size={18} className="text-rose-600 shrink-0" />
+              ) : (
+                <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+              )}
+              <span>{feedbackNotice.text}</span>
+            </div>
+            <button onClick={() => setFeedbackNotice(null)} className="text-rose-700 font-bold ml-4">
+              ✕
+            </button>
+          </div>
+        )}
 
-        {/* 3. Four Status Summary Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 2. Top Summary KPI Cards Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           
-          {/* Card 1: Total */}
-          <div
-            onClick={() => setActiveFilter('all')}
-            className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-              activeFilter === 'all' ? 'border-gov-blue ring-2 ring-gov-blue/20' : 'border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-              <span>Total Grievances</span>
-              <FileText size={16} className="text-slate-400" />
-            </div>
-            <div className="text-2xl font-black text-gov-navy font-mono">
-              {mockComplaintsData.length}
-            </div>
-            <span className="text-[11px] text-slate-500 font-medium">
-              Registered by your mobile number
-            </span>
-          </div>
-
-          {/* Card 2: In Progress */}
-          <div
-            onClick={() => setActiveFilter('in_progress')}
-            className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-              activeFilter === 'in_progress' ? 'border-amber-500 ring-2 ring-amber-500/20' : 'border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs text-amber-700 font-semibold mb-1">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block" />
-                In Progress (Active)
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <span className="text-xs text-slate-500 font-medium block">Total Registered</span>
+              <span className="text-2xl font-black text-gov-navy mt-1 block">
+                {complaints.length}
               </span>
-              <Activity size={16} className="text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-amber-900 font-mono">
-              {countInProgress}
+            <div className="w-10 h-10 rounded-lg bg-blue-50 text-gov-blue flex items-center justify-center">
+              <FileText size={20} />
             </div>
-            <span className="text-[11px] text-amber-700 font-medium">
-              Ground repair gang deployed
-            </span>
           </div>
 
-          {/* Card 3: Assigned / Inspection */}
-          <div
-            onClick={() => setActiveFilter('assigned')}
-            className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-              activeFilter === 'assigned' ? 'border-sky-500 ring-2 ring-sky-500/20' : 'border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs text-sky-700 font-semibold mb-1">
-              <span>Under Inspection</span>
-              <Clock size={16} className="text-sky-500" />
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <span className="text-xs text-amber-700 font-medium block">In Field Repair</span>
+              <span className="text-2xl font-black text-amber-700 mt-1 block">
+                {countInProgress}
+              </span>
             </div>
-            <div className="text-2xl font-black text-sky-900 font-mono">
-              {countAssigned}
+            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+              <Clock size={20} />
             </div>
-            <span className="text-[11px] text-sky-700 font-medium">
-              Engineer assigned for review
-            </span>
           </div>
 
-          {/* Card 4: Resolved */}
-          <div
-            onClick={() => setActiveFilter('resolved')}
-            className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-              activeFilter === 'resolved' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs text-emerald-700 font-semibold mb-1">
-              <span>Resolved &amp; Closed</span>
-              <CheckCircle2 size={16} className="text-emerald-600" />
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <span className="text-xs text-sky-700 font-medium block">Assigned / Inspection</span>
+              <span className="text-2xl font-black text-sky-700 mt-1 block">
+                {countAssigned}
+              </span>
             </div>
-            <div className="text-2xl font-black text-emerald-900 font-mono">
-              {countResolved}
+            <div className="w-10 h-10 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center">
+              <Activity size={20} />
             </div>
-            <span className="text-[11px] text-emerald-700 font-medium">
-              Verified with citizen feedback
-            </span>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <span className="text-xs text-emerald-700 font-medium block">Resolved Grievances</span>
+              <span className="text-2xl font-black text-emerald-700 mt-1 block">
+                {countResolved}
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <CheckCircle2 size={20} />
+            </div>
           </div>
 
         </div>
 
-        {/* 4. Split Dashboard Grid: Left Complaint List | Right Dynamic Timeline Inspector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* 3. Action Toolbar: Register New + Search + Filters */}
+        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           
-          {/* Left Column: Complaint Directory & Filter Tabs */}
-          <div className="lg:col-span-6 space-y-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            {/* Submit New Grievance Button */}
+            <button
+              onClick={() => onOpenRegister('')}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gov-blue hover:bg-gov-blueHover text-white text-xs sm:text-sm font-bold shadow transition-all cursor-pointer"
+            >
+              <Plus size={16} />
+              <span>Register New Grievance</span>
+            </button>
+
+            <span className="text-xs text-slate-500 hidden sm:inline">
+              Citizen Role: Verified mobile +91 {citizenUser?.mobile}
+            </span>
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full md:w-72">
+            <Search size={15} className="absolute left-3 top-3 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by ID, title, or ward..."
+              className="w-full text-xs p-2.5 pl-9 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue font-medium"
+            />
+          </div>
+
+        </div>
+
+        {/* 4. Split Layout: Complaints List (Left) vs Real-Time Workflow Tracker & Details (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* Left Column: Complaints Cards */}
+          <div className="lg:col-span-5 space-y-4">
             
-            {/* Filter Tabs & Search Header */}
-            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-gov-navy flex items-center gap-2">
-                  <Layers size={16} className="text-gov-blue" />
-                  <span>My Complaints Directory ({filteredComplaints.length})</span>
-                </h3>
-              </div>
+            {/* Filter Tabs */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gov-navy uppercase tracking-wider">
+                My Grievance Records ({filteredComplaints.length})
+              </span>
 
-              {/* Search input */}
-              <div className="relative">
-                <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by ID, Category, or Landmark..."
-                  className="w-full text-xs p-2 pl-9 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue"
-                />
-              </div>
-
-              {/* Filter Pills */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <button
-                  onClick={() => setActiveFilter('all')}
-                  className={`px-2.5 py-1 rounded text-xs font-semibold cursor-pointer transition-colors ${
-                    activeFilter === 'all' ? 'bg-gov-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  All ({mockComplaintsData.length})
-                </button>
-                <button
-                  onClick={() => setActiveFilter('in_progress')}
-                  className={`px-2.5 py-1 rounded text-xs font-semibold cursor-pointer transition-colors ${
-                    activeFilter === 'in_progress' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  In Progress ({countInProgress})
-                </button>
-                <button
-                  onClick={() => setActiveFilter('assigned')}
-                  className={`px-2.5 py-1 rounded text-xs font-semibold cursor-pointer transition-colors ${
-                    activeFilter === 'assigned' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Under Inspection ({countAssigned})
-                </button>
-                <button
-                  onClick={() => setActiveFilter('resolved')}
-                  className={`px-2.5 py-1 rounded text-xs font-semibold cursor-pointer transition-colors ${
-                    activeFilter === 'resolved' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Resolved ({countResolved})
-                </button>
+              <div className="flex items-center gap-1">
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'IN_PROGRESS', label: 'In Progress' },
+                  { key: 'ASSIGNED', label: 'Assigned' },
+                  { key: 'RESOLVED', label: 'Resolved' },
+                ].map((f) => (
+                  <button
+                    key={f.key}
+                    onClick={() => setActiveFilter(f.key)}
+                    className={`px-2.5 py-1 rounded text-[11px] font-semibold cursor-pointer transition-colors ${
+                      activeFilter === f.key
+                        ? 'bg-gov-navy text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Complaints Cards List */}
-            <div className="space-y-3">
-              {filteredComplaints.length === 0 ? (
+            <div className="space-y-3 max-h-[620px] overflow-y-auto pr-1">
+              {loading ? (
+                <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400 text-xs">
+                  Loading grievance records...
+                </div>
+              ) : filteredComplaints.length === 0 ? (
                 <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500 text-xs">
                   No grievances found matching the current filter.
                 </div>
               ) : (
                 filteredComplaints.map((item) => {
                   const Icon = categoryIcons[item.category] || FileText;
-                  const isSelected = item.id === selectedComplaintId;
+                  const isSelected = item.id === activeComplaint?.id;
 
-                  // Status style
                   const statusBadgeStyle =
-                    item.status === 'in_progress'
+                    item.status === 'CLOSED'
+                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                      : item.status === 'RESOLVED'
+                      ? 'bg-teal-100 text-teal-800 border-teal-300'
+                      : item.status === 'IN_PROGRESS'
                       ? 'bg-amber-100 text-amber-800 border-amber-300'
-                      : item.status === 'assigned'
+                      : item.status === 'ASSIGNED'
                       ? 'bg-sky-100 text-sky-800 border-sky-300'
-                      : 'bg-emerald-100 text-emerald-800 border-emerald-300';
-
-                  // Priority style
-                  const priorityStyle =
-                    item.priority === 'Urgent'
-                      ? 'bg-red-100 text-red-800'
-                      : item.priority === 'High'
-                      ? 'bg-orange-100 text-orange-800'
-                      : 'bg-slate-100 text-slate-700';
+                      : 'bg-purple-100 text-purple-800 border-purple-300';
 
                   return (
                     <div
@@ -351,10 +398,10 @@ export default function CitizenDashboardView({
                             {item.id}
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${statusBadgeStyle}`}>
-                            {item.statusLabel}
+                            {item.status}
                           </span>
                         </div>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${priorityStyle}`}>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase bg-slate-100 text-slate-700">
                           {item.priority}
                         </span>
                       </div>
@@ -372,11 +419,11 @@ export default function CitizenDashboardView({
 
                       <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
                         <span className="text-slate-500 font-medium">
-                          Submitted: {item.submittedAt}
+                          Ward: {item.ward?.split('(')[0] || item.ward}
                         </span>
                         <span className="font-semibold text-gov-blue flex items-center gap-1">
                           <Eye size={12} />
-                          <span>{isSelected ? 'Viewing Timeline' : 'Click to View'}</span>
+                          <span>{isSelected ? 'Viewing Tracker' : 'Click to Inspect'}</span>
                         </span>
                       </div>
                     </div>
@@ -387,192 +434,157 @@ export default function CitizenDashboardView({
 
           </div>
 
-          {/* Right Column: Dynamic Timeline & Action History Inspector */}
-          <div className="lg:col-span-6 bg-white rounded-2xl border-2 border-slate-300 p-6 shadow-sm space-y-6">
-            
-            {/* Active Ticket Header */}
-            <div className="border-b border-slate-200 pb-5 space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="inline-flex items-center gap-1.5 text-xs font-mono font-black text-gov-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                  <span>{activeComplaint.id}</span>
-                  <span>•</span>
-                  <span>{activeComplaint.categoryCode}</span>
-                </div>
-
-                {/* Status Badge */}
-                <span
-                  className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
-                    activeComplaint.status === 'in_progress'
-                      ? 'bg-amber-100 text-amber-800 border-amber-300'
-                      : activeComplaint.status === 'assigned'
-                      ? 'bg-sky-100 text-sky-800 border-sky-300'
-                      : 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                  }`}
-                >
-                  {activeComplaint.statusLabel}
-                </span>
-              </div>
-
-              <h2 className="text-lg font-black text-gov-navy">
-                {activeComplaint.title}
-              </h2>
-
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {activeComplaint.description}
-              </p>
-
-              {/* Meta details strip */}
-              <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Assigned Department</span>
-                  <span className="font-bold text-gov-navy">{activeComplaint.assignedDepartment}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Responsible Officer</span>
-                  <span className="font-bold text-gov-navy">
-                    {activeComplaint.assignedOfficer} ({activeComplaint.officerDesignation})
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">SLA Performance</span>
-                  <span className="font-bold text-emerald-700">{activeComplaint.slaStatusText}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Officer Direct Helpline</span>
-                  <span className="font-mono text-gov-blue font-bold">{activeComplaint.officerContact}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stepper Progress Bar (Step 1 to Step 5) */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs font-bold text-gov-navy">
-                <span className="flex items-center gap-1.5">
-                  <Activity size={14} className="text-gov-blue" />
-                  Live Redressal Progress
-                </span>
-                <span className="font-mono text-slate-500">
-                  Step {activeComplaint.currentStepIndex + 1} of 5
-                </span>
-              </div>
-
-              {/* 5-Step Stepper Line */}
-              <div className="relative pt-2 pb-2">
-                <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -translate-y-1/2 z-0" />
-                <div
-                  className="absolute top-1/2 left-0 h-1 bg-gov-blue -translate-y-1/2 z-0 transition-all duration-500"
-                  style={{
-                    width: `${(activeComplaint.currentStepIndex / 4) * 100}%`,
-                  }}
+          {/* Right Column: Dynamic Workflow Progress Tracker & Action History Inspector */}
+          <div className="lg:col-span-7 space-y-4">
+            {activeComplaint ? (
+              <>
+                {/* 6-Stage Sequential Workflow Tracker */}
+                <WorkflowTracker
+                  currentStatus={activeComplaint.status}
+                  audits={audits}
+                  assignedOfficer={activeComplaint.assigned_officer_name}
                 />
 
-                <div className="flex justify-between items-center relative z-10">
-                  {[0, 1, 2, 3, 4].map((stepIdx) => {
-                    const isDone = stepIdx < activeComplaint.currentStepIndex || activeComplaint.status === 'resolved';
-                    const isCurrent = stepIdx === activeComplaint.currentStepIndex && activeComplaint.status !== 'resolved';
+                {/* Complaint Details Card */}
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                    <div>
+                      <span className="text-[10px] font-mono text-gov-blue bg-blue-50 px-2 py-0.5 rounded font-bold uppercase">
+                        {activeComplaint.id}
+                      </span>
+                      <h2 className="text-base font-extrabold text-gov-navy mt-1">
+                        {activeComplaint.title}
+                      </h2>
+                    </div>
 
-                    return (
-                      <div
-                        key={stepIdx}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                          isDone
-                            ? 'bg-emerald-600 text-white shadow-sm'
-                            : isCurrent
-                            ? 'bg-amber-500 text-white ring-4 ring-amber-200 animate-pulse'
-                            : 'bg-slate-200 text-slate-500'
-                        }`}
-                        title={`Step ${stepIdx + 1}`}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsAuditModalOpen(true)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
                       >
-                        {isDone ? '✓' : stepIdx + 1}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+                        <Clock size={13} />
+                        <span>Public Audit History ({audits.length})</span>
+                      </button>
+                    </div>
+                  </div>
 
-            {/* Detailed Timeline Events */}
-            <div className="space-y-4 pt-2">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Audit Trail &amp; Action Log
-              </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    {activeComplaint.description}
+                  </p>
 
-              <div className="space-y-3 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-                {activeComplaint.timeline.map((step, idx) => {
-                  const isDone = step.completed;
-                  const isCurrent = step.isActive;
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Category & Location</span>
+                      <strong className="text-slate-800 block mt-0.5">
+                        {activeComplaint.category} • {activeComplaint.location}
+                      </strong>
+                    </div>
+                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Assigned Officer</span>
+                      <strong className="text-slate-800 block mt-0.5">
+                        {activeComplaint.assigned_officer_name || 'Under Review / Awaiting Assignment'}
+                      </strong>
+                    </div>
+                  </div>
 
-                  return (
-                    <div key={idx} className="relative flex items-start gap-3.5 pl-8">
-                      {/* Status Icon */}
-                      <div
-                        className={`absolute left-1.5 top-1 -translate-x-1/2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                          isDone
-                            ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-500'
-                            : isCurrent
-                            ? 'bg-amber-100 text-amber-800 border-2 border-amber-500 animate-ping-short'
-                            : 'bg-slate-100 text-slate-400 border border-slate-300'
-                        }`}
-                      >
-                        {isDone ? '✓' : idx + 1}
-                      </div>
+                  {/* Resolution Proof Card if Resolved or Closed */}
+                  {activeComplaint.resolution_remarks && (
+                    <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs space-y-2">
+                      <span className="font-bold text-emerald-900 block flex items-center gap-1.5">
+                        <CheckCircle2 size={15} />
+                        <span>Work Completed & Resolution Remarks:</span>
+                      </span>
+                      <p className="text-emerald-800 font-medium">{activeComplaint.resolution_remarks}</p>
+                      {activeComplaint.resolution_proof_url && (
+                        <div className="text-[11px] text-emerald-700 flex items-center gap-1">
+                          <ExternalLink size={12} />
+                          <a
+                            href={activeComplaint.resolution_proof_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline font-semibold"
+                          >
+                            View Supporting Photographic Evidence
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                      {/* Content Card */}
-                      <div
-                        className={`flex-1 p-3.5 rounded-xl border text-xs space-y-1 ${
-                          isCurrent
-                            ? 'bg-amber-50/70 border-amber-300'
-                            : isDone
-                            ? 'bg-white border-slate-200'
-                            : 'bg-slate-50/50 border-slate-200/60 opacity-60'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <h5 className="font-bold text-gov-navy">
-                            {step.title}
-                          </h5>
-                          <span className="font-mono text-[10px] text-slate-400 font-bold">
-                            {step.time}
+                  {/* Citizen Action & Feedback Section */}
+                  <div className="pt-4 border-t border-slate-200">
+                    {activeComplaint.status === 'CLOSED' || activeComplaint.status === 'RESOLVED' ? (
+                      <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div>
+                          <span className="font-bold text-gov-navy block flex items-center gap-1.5">
+                            <CheckCircle size={15} className="text-emerald-600" />
+                            <span>Citizen Satisfaction Verification</span>
+                          </span>
+                          <span className="text-slate-500 text-[11px] mt-0.5 block">
+                            Are you satisfied with the municipal redressal completed for this complaint?
                           </span>
                         </div>
-
-                        <p className="text-slate-600 leading-relaxed">
-                          {step.detail}
-                        </p>
-
-                        <div className="pt-1 text-[11px] text-slate-400 font-medium">
-                          Handled by: <strong className="text-slate-700">{step.officer}</strong>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleCitizenSatisfaction(true)}
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                          >
+                            <CheckCircle size={14} />
+                            <span>Confirm Satisfaction</span>
+                          </button>
+                          <button
+                            onClick={() => handleCitizenSatisfaction(false)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition-colors cursor-pointer"
+                          >
+                            <span>Request Assistance</span>
+                          </button>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                    ) : (
+                      <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-gov-navy flex items-center gap-1.5">
+                            <ShieldCheck size={14} className="text-gov-blue" />
+                            <span>Citizen Permissions: Lifecycle Changes Protected</span>
+                          </span>
+                          <span className="text-slate-500 text-[11px] block">
+                            Citizens can submit and track grievances. Status changes are strictly enforced by the backend and restricted to municipal officers and supervisors.
+                          </span>
+                        </div>
+                        <button
+                          onClick={handleAttemptStatusChange}
+                          disabled={actionLoading}
+                          title="Fires status update to backend to verify 403 Forbidden rejection"
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-300 hover:border-rose-300 font-semibold text-xs rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
+                        >
+                          <ShieldAlert size={13} className="text-rose-500" />
+                          <span>Test Change Status (Verify 403 Forbidden)</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
-            {/* Resolution Proof Card (If Resolved) */}
-            {activeComplaint.status === 'resolved' && (
-              <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-xl space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-emerald-900 flex items-center gap-1.5">
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                    Verified Resolution Evidence
-                  </span>
-                  <span className="text-emerald-800 font-semibold font-mono text-[11px]">
-                    Citizen Rating: 5/5 ★
-                  </span>
                 </div>
-                <p className="text-emerald-800 text-[11px]">
-                  Pothole patchwork completed using hot mix asphalt. Geo-fenced verification coordinates: 19.0760° N, 72.8777° E. Verified by citizen via SMS confirmation.
-                </p>
+              </>
+            ) : (
+              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 text-xs">
+                Select a grievance on the left to track progress.
               </div>
             )}
-
           </div>
 
         </div>
 
       </main>
+
+      {/* Audit Modal */}
+      <AuditTrailModal
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
+        complaintId={activeComplaint?.id}
+        audits={audits}
+        t={t}
+      />
 
     </div>
   );

@@ -11,9 +11,22 @@ import CitizenInfoSection from './components/CitizenInfoSection';
 import Footer from './components/Footer';
 import RegisterComplaintModal from './components/RegisterComplaintModal';
 import CitizenLoginModal from './components/CitizenLoginModal';
-import CitizenDashboardView from './components/CitizenDashboardView';
 import HelpdeskModal from './components/HelpdeskModal';
-import { User, LogOut, LayoutDashboard } from 'lucide-react';
+import CitizenDashboardView from './components/CitizenDashboardView';
+import OfficerDashboardView from './components/OfficerDashboardView';
+import SupervisorDashboardView from './components/SupervisorDashboardView';
+import AdminDashboardView from './components/AdminDashboardView';
+import {
+  User,
+  LogOut,
+  LayoutDashboard,
+  Wrench,
+  UserCheck,
+  Building,
+  ShieldCheck,
+  Globe,
+} from 'lucide-react';
+import { loginUser } from './services/api';
 
 export default function App() {
   // Navigation View: 'portal' | 'dashboard'
@@ -35,13 +48,17 @@ export default function App() {
   // Tracked complaint ID for timeline demonstration
   const [trackedComplaintId, setTrackedComplaintId] = useState('GFX-2026-3109');
 
-  // Citizen Authentication State
-  const [citizenUser, setCitizenUser] = useState(null);
+  // Focus complaint ID in dashboard and refresh trigger
+  const [focusedComplaintId, setFocusedComplaintId] = useState(null);
+  const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0);
+
+  // Active Authenticated User (supports all 4 roles: citizen, officer, supervisor, admin)
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Active Translations
   const t = translations[currentLang] || translations.en;
 
-  // Apply root font-size to <html> element to make Zoom in / Zoom out genuinely scale all rem-based typography and layout
+  // Apply root font-size to <html> element
   useEffect(() => {
     const sizeMap = {
       sm: '14px',
@@ -56,7 +73,6 @@ export default function App() {
     const targetSize = sizeMap[fontScale] || '16px';
     document.documentElement.style.fontSize = targetSize;
 
-    // Show temporary feedback toast
     setFontToast(`${t.textSizeNotice} ${scaleTextMap[fontScale]}`);
     const timer = setTimeout(() => {
       setFontToast(null);
@@ -71,17 +87,44 @@ export default function App() {
     setIsRegisterOpen(true);
   };
 
+  // Called when a new complaint is registered
+  const handleComplaintCreated = (newId) => {
+    setFocusedComplaintId(newId);
+    setDashboardRefreshKey((prev) => prev + 1);
+
+    if (currentUser) {
+      setCurrentView('dashboard');
+    } else {
+      // If citizen submitted while on homepage, sign in as default citizen to show their dashboard
+      loginUser('citizen-1')
+        .then((user) => {
+          setCurrentUser(user);
+          setCurrentView('dashboard');
+        })
+        .catch(() => {
+          handleTrackComplaint(newId);
+        });
+    }
+  };
+
   const handleTrackComplaint = (id) => {
+    // If citizen is logged in, track directly inside their Citizen Dashboard
+    if (currentUser && currentUser.role === 'citizen') {
+      setFocusedComplaintId(id);
+      setDashboardRefreshKey((prev) => prev + 1);
+      setCurrentView('dashboard');
+      return;
+    }
+
+    // Unauthenticated public portal tracking
     setTrackedComplaintId(id);
     if (currentView === 'dashboard') {
-      // If on dashboard, switch back to portal to see public tracking or stay on dashboard
       setCurrentView('portal');
     }
     setTimeout(() => {
       const timelineEl = document.getElementById('sample-timeline');
       if (timelineEl) {
         timelineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Visual feedback highlight
         timelineEl.classList.add('ring-4', 'ring-gov-blue/50');
         setTimeout(() => {
           timelineEl.classList.remove('ring-4', 'ring-gov-blue/50');
@@ -91,13 +134,12 @@ export default function App() {
   };
 
   const handleLoginSuccess = (user) => {
-    setCitizenUser(user);
-    // Upon login, open the FULL PROPER CITIZEN DASHBOARD!
+    setCurrentUser(user);
     setCurrentView('dashboard');
   };
 
   const handleSignOut = () => {
-    setCitizenUser(null);
+    setCurrentUser(null);
     setCurrentView('portal');
   };
 
@@ -113,15 +155,48 @@ export default function App() {
         </div>
       )}
 
-      {/* RENDER FULL CITIZEN DASHBOARD VIEW WHEN LOGGED IN AND ON 'dashboard' */}
-      {currentView === 'dashboard' && citizenUser ? (
-        <CitizenDashboardView
-          citizenUser={citizenUser}
-          onBackToPortal={() => setCurrentView('portal')}
-          onSignOut={handleSignOut}
-          onOpenRegister={handleOpenRegister}
-          t={t}
-        />
+      {/* RENDER ROLE-SPECIFIC DASHBOARD VIEWS WHEN LOGGED IN AND ON 'dashboard' */}
+      {currentView === 'dashboard' && currentUser ? (
+        <>
+          {currentUser.role === 'citizen' && (
+            <CitizenDashboardView
+              citizenUser={currentUser}
+              onBackToPortal={() => setCurrentView('portal')}
+              onSignOut={handleSignOut}
+              onOpenRegister={handleOpenRegister}
+              initialSelectedId={focusedComplaintId}
+              refreshKey={dashboardRefreshKey}
+              t={t}
+            />
+          )}
+
+          {currentUser.role === 'officer' && (
+            <OfficerDashboardView
+              officerUser={currentUser}
+              onBackToPortal={() => setCurrentView('portal')}
+              onSignOut={handleSignOut}
+              t={t}
+            />
+          )}
+
+          {currentUser.role === 'supervisor' && (
+            <SupervisorDashboardView
+              supervisorUser={currentUser}
+              onBackToPortal={() => setCurrentView('portal')}
+              onSignOut={handleSignOut}
+              t={t}
+            />
+          )}
+
+          {currentUser.role === 'admin' && (
+            <AdminDashboardView
+              adminUser={currentUser}
+              onBackToPortal={() => setCurrentView('portal')}
+              onSignOut={handleSignOut}
+              t={t}
+            />
+          )}
+        </>
       ) : (
         /* RENDER PUBLIC CITIZEN PORTAL HOMEPAGE */
         <>
@@ -140,38 +215,10 @@ export default function App() {
             t={t}
             onOpenLogin={() => setIsLoginOpen(true)}
             onOpenRegister={handleOpenRegister}
-            citizenUser={citizenUser}
+            currentUser={currentUser}
             onOpenDashboard={() => setCurrentView('dashboard')}
+            onSignOut={handleSignOut}
           />
-
-          {/* Citizen Logged-in Notice Banner (When on homepage) */}
-          {citizenUser && (
-            <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 text-xs text-emerald-800 flex items-center justify-between max-w-7xl mx-auto w-full">
-              <div className="flex items-center gap-2">
-                <User size={14} className="text-emerald-600" />
-                <span>
-                  {t.signedInAs} <strong>{citizenUser.name}</strong> (+91 {citizenUser.mobile}) • {citizenUser.ward}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setCurrentView('dashboard')}
-                  className="inline-flex items-center gap-1 font-bold text-gov-blue hover:underline cursor-pointer"
-                >
-                  <LayoutDashboard size={13} />
-                  <span>Open Citizen Dashboard</span>
-                </button>
-                <span>•</span>
-                <button
-                  onClick={handleSignOut}
-                  className="inline-flex items-center gap-1 font-semibold text-emerald-900 hover:underline cursor-pointer"
-                >
-                  <LogOut size={12} />
-                  <span>{t.btnSignOut}</span>
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Main Content Sections */}
           <main className="flex-1">
@@ -194,7 +241,7 @@ export default function App() {
             {/* 4. How GovFix Works */}
             <HowItWorksSection t={t} />
 
-            {/* 5. Transparency & Accountability (Dynamic Timelines!) */}
+            {/* 5. Transparency & Accountability */}
             <TransparencySection
               t={t}
               trackedComplaintId={trackedComplaintId}
@@ -222,7 +269,8 @@ export default function App() {
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         initialCategory={selectedServiceCategory}
-        onComplaintCreated={(id) => handleTrackComplaint(id)}
+        onComplaintCreated={handleComplaintCreated}
+        currentUser={currentUser}
         t={t}
       />
 

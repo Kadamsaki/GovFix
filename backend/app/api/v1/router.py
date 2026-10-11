@@ -2,9 +2,15 @@ from datetime import datetime
 from fastapi import APIRouter
 from app.core.config import get_settings
 from app.schemas import HealthCheckResponse, SystemInfoResponse
+from app.api.v1.auth import router as auth_router
+from app.api.v1.complaints import router as complaints_router
 
 api_router = APIRouter()
 settings = get_settings()
+
+# Mount feature routers
+api_router.include_router(auth_router)
+api_router.include_router(complaints_router)
 
 
 @api_router.get(
@@ -28,10 +34,10 @@ async def health_check():
     "/system-info",
     response_model=SystemInfoResponse,
     summary="System Information",
-    description="Returns metadata about core modules and planned municipal grievance categories.",
+    description="Returns metadata about core modules and municipal grievance categories.",
 )
 async def get_system_info():
-    """Provides system readiness metrics and planned module structure."""
+    """Provides system readiness metrics and active module structure."""
     return SystemInfoResponse(
         service_name=settings.PROJECT_NAME,
         version=settings.PROJECT_VERSION,
@@ -39,11 +45,11 @@ async def get_system_info():
         status="operational",
         modules={
             "api_gateway": "Active (FastAPI)",
-            "auth_module": "Ready for implementation",
-            "grievance_engine": "Ready for implementation",
-            "ai_classifier": "Ready for implementation",
-            "officer_dispatch": "Ready for implementation",
-            "notification_service": "Ready for implementation",
+            "auth_module": "Operational (RBAC - 4 Roles)",
+            "grievance_engine": "Operational (Strict Sequential Lifecycle)",
+            "workflow_service": "Operational (Audit Trail & ACID State Machine)",
+            "officer_dispatch": "Operational (Zonal Officer Assignment)",
+            "resolution_approval": "Operational (Two-Step Verification)",
         },
         grievance_categories_preview=[
             "Roads & Potholes",

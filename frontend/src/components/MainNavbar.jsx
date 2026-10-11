@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Shield, Menu, X, User, FilePlus } from 'lucide-react';
+import { Shield, Menu, X, User, FilePlus, LogOut, LayoutDashboard } from 'lucide-react';
 
 export default function MainNavbar({
   t,
   onOpenLogin,
   onOpenRegister,
+  currentUser,
   citizenUser,
   onOpenDashboard,
+  onSignOut,
 }) {
+  const activeUser = currentUser || citizenUser;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const scrollToSection = (id) => {
@@ -95,19 +98,30 @@ export default function MainNavbar({
 
           {/* Right Action CTAs */}
           <div className="hidden sm:flex items-center gap-3">
-            {citizenUser ? (
-              <button
-                onClick={onOpenDashboard}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold text-gov-navy bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-sm"
-              >
-                <div className="w-6 h-6 rounded-full bg-gov-blue text-white flex items-center justify-center text-[10px]">
-                  {citizenUser.name?.charAt(0) || 'C'}
-                </div>
-                <span>{citizenUser.name}</span>
-                <span className="text-[10px] bg-blue-200/90 text-blue-900 px-1.5 py-0.5 rounded font-mono">
-                  Dashboard
-                </span>
-              </button>
+            {activeUser ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={onOpenDashboard}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-gov-navy bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-sm"
+                  title="Open Municipal Dashboard"
+                >
+                  <div className="w-6 h-6 rounded-full bg-gov-navy text-white flex items-center justify-center text-[10px] font-bold">
+                    {activeUser.name?.charAt(0) || 'U'}
+                  </div>
+                  <span>{activeUser.name}</span>
+                  <span className="text-[10px] bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded font-mono uppercase font-bold">
+                    {activeUser.role}
+                  </span>
+                  <LayoutDashboard size={13} className="text-gov-blue ml-1" />
+                </button>
+                <button
+                  onClick={onSignOut}
+                  title="Sign Out"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <LogOut size={15} />
+                </button>
+              </div>
             ) : (
               <button
                 onClick={onOpenLogin}
@@ -198,17 +212,29 @@ export default function MainNavbar({
           </div>
 
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
-            {citizenUser ? (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenDashboard();
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold text-gov-navy bg-blue-50 border border-blue-200"
-              >
-                <User size={16} />
-                <span>{citizenUser.name} (Dashboard)</span>
-              </button>
+            {activeUser ? (
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenDashboard();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold text-gov-navy bg-slate-100 border border-slate-300"
+                >
+                  <LayoutDashboard size={16} />
+                  <span>{activeUser.name} ({activeUser.role.toUpperCase()} Dashboard)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onSignOut && onSignOut();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200"
+                >
+                  <LogOut size={14} />
+                  <span>{t.btnSignOut || 'Sign Out'}</span>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => {

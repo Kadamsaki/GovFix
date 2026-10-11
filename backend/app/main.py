@@ -1,9 +1,19 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.api.v1.router import api_router
+from app.db.init_db import init_db
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initializes database schema and seed data on startup."""
+    init_db()
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -11,6 +21,7 @@ app = FastAPI(
     description=settings.PROJECT_DESCRIPTION,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # CORS configuration to allow local frontend development
@@ -37,5 +48,7 @@ async def root():
         "endpoints": {
             "health": f"{settings.API_V1_STR}/health",
             "system_info": f"{settings.API_V1_STR}/system-info",
+            "complaints": f"{settings.API_V1_STR}/complaints",
+            "auth": f"{settings.API_V1_STR}/auth",
         },
     }
