@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, Phone, Mail, MapPin, AlertCircle } from 'lucide-react';
 
-export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
+export default function Footer({ t, onOpenRegister }) {
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -120,14 +120,6 @@ export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
                   </button>
                 </li>
               ))}
-              <li>
-                <button
-                  onClick={() => onTrackComplaint('GFX-2026-8942')}
-                  className="text-sky-400 hover:text-sky-300 font-semibold"
-                >
-                  {t.trackRegisteredComplaint}
-                </button>
-              </li>
             </ul>
           </div>
 

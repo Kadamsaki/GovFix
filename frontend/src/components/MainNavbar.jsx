@@ -51,58 +51,58 @@ export default function MainNavbar({
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 font-medium text-sm text-gov-text">
+          <nav className="hidden lg:flex items-center gap-3.5 xl:gap-5 font-medium text-xs xl:text-sm text-gov-text ml-6 xl:ml-8 mr-auto shrink-0">
             <button
               onClick={() => scrollToSection('home')}
-              className="text-gov-navy font-semibold hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-navy font-semibold hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navHome}
             </button>
             <button
               onClick={() => scrollToSection('about')}
-              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navAbout}
             </button>
             <button
               onClick={() => scrollToSection('services')}
-              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navServices}
             </button>
             <button
               onClick={() => scrollToSection('how-it-works')}
-              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navHowItWorks}
             </button>
             <button
               onClick={() => scrollToSection('transparency')}
-              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navTransparency}
             </button>
             <button
               onClick={() => scrollToSection('citizen-info')}
-              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navCitizenInfo}
             </button>
             <button
               onClick={() => scrollToSection('contact')}
-              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer"
+              className="text-gov-muted hover:text-gov-blue transition-colors py-1 border-b-2 border-transparent hover:border-gov-blue cursor-pointer whitespace-nowrap"
             >
               {t.navContact}
             </button>
           </nav>
 
           {/* Right Action CTAs */}
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-3 shrink-0 ml-6 pl-6 border-l border-slate-200">
             {activeUser ? (
               <div className="flex items-center gap-2">
                 <button
                   onClick={onOpenDashboard}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-gov-navy bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-sm"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-gov-navy bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-sm whitespace-nowrap"
                   title="Open Municipal Dashboard"
                 >
                   <div className="w-6 h-6 rounded-full bg-gov-navy text-white flex items-center justify-center text-[10px] font-bold">
@@ -125,9 +125,9 @@ export default function MainNavbar({
             ) : (
               <button
                 onClick={onOpenLogin}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-semibold text-gov-navy bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all hover:shadow-sm cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-gov-navy bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all hover:shadow-sm cursor-pointer whitespace-nowrap"
               >
-                <User size={16} className="text-gov-navy" />
+                <User size={15} className="text-gov-navy" />
                 <span>{t.btnLogin}</span>
               </button>
             )}
@@ -135,7 +135,7 @@ export default function MainNavbar({
             {/* Register Complaint CTA */}
             <button
               onClick={() => onOpenRegister()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold text-white bg-gov-blue hover:bg-gov-blueHover shadow-sm hover:shadow transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-white bg-gov-blue hover:bg-gov-blueHover shadow-sm hover:shadow transition-all cursor-pointer whitespace-nowrap"
             >
               <FilePlus size={16} />
               <span>{t.btnRegister}</span>

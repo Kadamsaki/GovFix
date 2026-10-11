@@ -12,20 +12,20 @@ export const translations = {
     portalTitle: "GovFix",
     portalSubtitle: "Municipal Grievance Redressal Portal",
     navHome: "Home",
-    navAbout: "About GovFix",
+    navAbout: "About",
     navServices: "Services",
     navHowItWorks: "How It Works",
     navTransparency: "Transparency",
     navCitizenInfo: "Citizen Guide",
     navContact: "Contact",
-    btnLogin: "Citizen Login",
+    btnLogin: "Sign In",
     btnRegister: "Register Complaint",
 
     // Hero Section
     heroBadge: "Digital Civic Redressal Engine",
     heroBadgeVision: "Digital India Civic Vision",
     heroHeading: "Your City. Your Voice. Our Responsibility.",
-    heroSubtext: "Report civic issues, track your complaints and stay informed about every action taken. GovFix makes municipal grievance redressal simpler, faster and more transparent.",
+    heroSubtext: "Report civic issues with automatic department routing and guaranteed SLA redressal. GovFix connects citizens, field officers, and municipal supervisors for rapid, accountable grievance redressal.",
     btnHeroRegister: "Register a Complaint",
     btnHeroTrack: "Track Your Complaint",
     trustIndicator: "One Platform. Transparent Resolution. Accountable Governance.",
@@ -290,11 +290,11 @@ export const translations = {
     successSubmittedDesc: "Your civic complaint has been registered and forwarded to the AI triage engine for ward engineer assignment.",
     successRefLabel: "Reference ID:",
     successSmsNotice: "An SMS confirmation has been sent to your registered mobile number.",
-    btnTrackNow: "Track This Complaint Now",
+    btnTrackNow: "Go to Citizen Dashboard",
 
-    // Modals: Citizen Login & OTP Simulation
-    modalLoginTitle: "Citizen Portal Login",
-    modalLoginDesc: "Sign in with your registered mobile number to check complaint history, reopen tickets, and give officer feedback.",
+    // Modals: Multi-Role Login & OTP Simulation
+    modalLoginTitle: "Municipal Redressal Portal Login",
+    modalLoginDesc: "Sign in with your registered mobile or credentials to access your citizen, officer, or supervisor dashboard.",
     fieldLoginMobile: "Mobile Number",
     fieldLoginMobilePlaceholder: "Enter 10-digit mobile number",
     fieldCaptcha: "Security Code (CAPTCHA)",
@@ -344,14 +344,14 @@ export const translations = {
     navTransparency: "पारदर्शिता व जवाबदेही",
     navCitizenInfo: "नागरिक संदर्शिका",
     navContact: "संपर्क",
-    btnLogin: "नागरिक लॉगिन",
+    btnLogin: "लॉगिन",
     btnRegister: "शिकायत दर्ज करें",
 
     // Hero Section
     heroBadge: "डिजिटल जन शिकायत निवारण इंजन",
     heroBadgeVision: "डिजिटल इंडिया जन सेवा विज़न",
     heroHeading: "आपका शहर। आपकी आवाज़। हमारी ज़िम्मेदारी।",
-    heroSubtext: "नागरिक समस्याओं की शिकायत दर्ज करें, स्थिति ट्रैक करें और की गई हर कार्रवाई की जानकारी प्राप्त करें। गॉवफिक्स नगर निकाय शिकायत निवारण को अधिक सरल, तीव्र और पारदर्शी बनाता है।",
+    heroSubtext: "स्वचालित विभाग आवंटन और समयबद्ध समाधान के साथ अपनी नागरिक समस्याएं दर्ज करें। गॉवफिक्स नागरिकों, फील्ड अधिकारियों और पर्यवेक्षकों को पारदर्शी सेवा से जोड़ता है।",
     btnHeroRegister: "शिकायत दर्ज करें",
     btnHeroTrack: "शिकायत ट्रैक करें",
     trustIndicator: "एक मंच। पारदर्शी समाधान। जवाबदेह शासन।",
@@ -616,11 +616,11 @@ export const translations = {
     successSubmittedDesc: "आपकी नागरिक शिकायत दर्ज कर ली गई है और वार्ड अभियंता आवंटन हेतु एआई इंजन को प्रेषित की गई है।",
     successRefLabel: "संदर्भ संख्या (Reference ID):",
     successSmsNotice: "आपके पंजीकृत मोबाइल नंबर पर पुष्टि का एसएमएस भेज दिया गया है।",
-    btnTrackNow: "अभी शिकायत ट्रैक करें",
+    btnTrackNow: "नागरिक डैशबोर्ड देखें",
 
-    // Modals: Citizen Login & OTP Simulation
-    modalLoginTitle: "नागरिक पोर्टल लॉगिन",
-    modalLoginDesc: "शिकायत इतिहास देखने, टिकट दोबारा खोलने व अधिकारी फीडबैक देने हेतु मोबाइल नंबर से लॉगिन करें।",
+    // Modals: Multi-Role Login & OTP Simulation
+    modalLoginTitle: "महानगरपालिका पोर्टल लॉगिन",
+    modalLoginDesc: "नागरिक, क्षेत्रीय अधिकारी अथवा पर्यवेक्षक डैशबोर्ड में प्रवेश के लिए लॉगिन करें।",
     fieldLoginMobile: "मोबाइल नंबर",
     fieldLoginMobilePlaceholder: "10-अंकीय मोबाइल नंबर दर्ज करें",
     fieldCaptcha: "सुरक्षा कोड (CAPTCHA)",
@@ -670,14 +670,14 @@ export const translations = {
     navTransparency: "पारदर्शकता व उत्तरदायित्व",
     navCitizenInfo: "नागरिक मार्गदर्शिका",
     navContact: "संपर्क",
-    btnLogin: "नागरिक लॉगिन",
+    btnLogin: "लॉगिन",
     btnRegister: "तक्रार नोंदवा",
 
     // Hero Section
     heroBadge: "डिजिटल नागरी तक्रार निवारण इंजिन",
     heroBadgeVision: "डिजिटल इंडिया नागरी सेवा दृष्टी",
     heroHeading: "तुमचे शहर. तुमचा आवाज. आमची जबाबदारी.",
-    heroSubtext: "नागरी समस्यांची तक्रार नोंदवा, तक्रारीचा मागोवा घ्या आणि केलेल्या प्रत्येक कारवाईची माहिती मिळवा. गॉव्हफिक्स महानगरपालिकेचे तक्रार निवारण अधिक सोपे, जलद आणि पारदर्शक बनवते.",
+    heroSubtext: "स्वयंचलित विभाग वाटप आणि वेळेत निवारणासाठी नागरी समस्यांची तक्रार नोंदवा. गॉव्हफिक्स नागरिक, क्षेत्रीय अधिकारी आणि पर्यवेक्षकांना जलद व पारदर्शक सेवेशी जोडते.",
     btnHeroRegister: "तक्रार नोंदवा",
     btnHeroTrack: "तक्रार तपासा",
     trustIndicator: "एक व्यासपीठ. पारदर्शक निवारण. उत्तरदायी प्रशासन.",
@@ -942,11 +942,11 @@ export const translations = {
     successSubmittedDesc: "आपली तक्रार नोंदवली असून प्रभाग अभियंता वाटपासाठी एआय प्रणालीकडे पाठवली आहे.",
     successRefLabel: "तक्रार संदर्भ क्रमांक (Reference ID):",
     successSmsNotice: "आपल्या नोंदणीकृत मोबाईलवर पुष्टीचा एसएमएस पाठवला आहे.",
-    btnTrackNow: "आत्ताच तक्रार तपासा",
+    btnTrackNow: "नागरिक डॅशबोर्ड पहा",
 
-    // Modals: Citizen Login & OTP Simulation
-    modalLoginTitle: "नागरिक पोर्टल लॉगिन",
-    modalLoginDesc: "तक्रारींचा इतिहास पाहण्यासाठी, कामाचा फेरआढावा घेण्यासाठी मोबाईल क्रमांकाने लॉगिन करा.",
+    // Modals: Multi-Role Login & OTP Simulation
+    modalLoginTitle: "महानगरपालिका पोर्टल लॉगिन",
+    modalLoginDesc: "नागरिक, अधिकारी किंवा पर्यवेक्षक डॅशबोर्डमध्ये प्रवेशासाठी लॉगिन करा.",
     fieldLoginMobile: "मोबाईल क्रमांक",
     fieldLoginMobilePlaceholder: "10-अंकी मोबाईल नंबर टाका",
     fieldCaptcha: "सुरक्षा कोड (CAPTCHA)",

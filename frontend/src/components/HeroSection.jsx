@@ -1,44 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   FilePlus,
-  Search,
   CheckCircle2,
   Clock,
   Shield,
   Activity,
-  ArrowRight,
-  Sparkles,
   Building2,
   MapPin,
   TrendingUp,
+  Sparkles,
+  ShieldCheck,
+  CheckCircle,
 } from 'lucide-react';
 
 export default function HeroSection({
   t,
   onOpenRegister,
-  onTrackComplaint,
 }) {
-  const [trackingId, setTrackingId] = useState('');
-
-  const handleTrackSubmit = (e) => {
-    e.preventDefault();
-    if (trackingId.trim()) {
-      onTrackComplaint(trackingId.trim());
-    } else {
-      onTrackComplaint('GFX-2026-8942');
-    }
-  };
-
   return (
-    <section id="home" className="relative bg-gradient-to-b from-white via-gov-bg to-slate-100 border-b border-gov-border pt-8 pb-16 lg:pt-14 lg:pb-20 overflow-hidden">
+    <section id="home" className="relative bg-gradient-to-b from-white via-gov-bg to-slate-100 border-b border-gov-border pt-8 pb-14 lg:pt-12 lg:pb-18 overflow-hidden">
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#142B4A_1px,transparent_1px)] [background-size:20px_20px]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Column: Official Messaging & CTAs */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-5">
             
             {/* National / Municipal Initiative Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-gov-blue text-xs font-semibold tracking-wide shadow-sm">
@@ -49,7 +37,7 @@ export default function HeroSection({
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gov-navy tracking-tight leading-[1.2]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gov-navy tracking-tight leading-[1.18]">
               {t.heroHeading}
             </h1>
 
@@ -58,52 +46,36 @@ export default function HeroSection({
               {t.heroSubtext}
             </p>
 
-            {/* Primary & Secondary Action CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+            {/* Primary Action CTA */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-1">
               <button
                 onClick={() => onOpenRegister()}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-lg text-base font-semibold text-white bg-gov-blue hover:bg-gov-blueHover shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-base font-bold text-white bg-gov-blue hover:bg-gov-blueHover shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
-                <FilePlus size={19} />
+                <FilePlus size={20} />
                 <span>{t.btnHeroRegister}</span>
-              </button>
-
-              <button
-                onClick={() => onTrackComplaint('GFX-2026-8942')}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-lg text-base font-semibold text-gov-navy bg-white hover:bg-slate-50 border border-slate-300 shadow-sm hover:shadow transition-all"
-              >
-                <Search size={19} className="text-gov-blue" />
-                <span>{t.btnHeroTrack}</span>
               </button>
             </div>
 
-            {/* Quick Track Input Bar */}
-            <form
-              onSubmit={handleTrackSubmit}
-              className="mt-4 p-2 bg-white rounded-lg border border-slate-300 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl"
-            >
-              <div className="flex items-center gap-2 px-2.5 flex-1 text-slate-500">
-                <Search size={16} className="text-gov-blue shrink-0" />
-                <input
-                  type="text"
-                  value={trackingId}
-                  onChange={(e) => setTrackingId(e.target.value)}
-                  placeholder={t.quickTrackPlaceholder}
-                  className="w-full text-xs sm:text-sm text-gov-text placeholder:text-slate-400 focus:outline-none bg-transparent"
-                />
+            {/* 3 Municipal Pillar Guarantee Badges */}
+            <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-xl">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 border border-slate-200 shadow-sm text-xs font-semibold text-slate-700">
+                <Clock size={15} className="text-gov-blue shrink-0" />
+                <span>6h–72h Priority SLA</span>
               </div>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-gov-navy hover:bg-slate-800 text-white rounded text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 shrink-0"
-              >
-                <span>{t.btnQuickTrack}</span>
-                <ArrowRight size={14} />
-              </button>
-            </form>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 border border-slate-200 shadow-sm text-xs font-semibold text-slate-700">
+                <Building2 size={15} className="text-purple-600 shrink-0" />
+                <span>Auto Dept Routing</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 border border-slate-200 shadow-sm text-xs font-semibold text-slate-700">
+                <ShieldCheck size={15} className="text-emerald-600 shrink-0" />
+                <span>Verified Closure</span>
+              </div>
+            </div>
 
             {/* Trust Indicator Pill */}
-            <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-slate-600">
-              <Shield size={16} className="text-gov-teal shrink-0" />
+            <div className="pt-1 flex items-center gap-2 text-xs font-semibold text-slate-500">
+              <Shield size={15} className="text-gov-teal shrink-0" />
               <span>{t.trustIndicator}</span>
             </div>
 

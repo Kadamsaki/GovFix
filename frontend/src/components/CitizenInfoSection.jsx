@@ -11,7 +11,6 @@ import {
 export default function CitizenInfoSection({
   t,
   onOpenRegister,
-  onTrackComplaint,
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
@@ -85,28 +84,7 @@ export default function CitizenInfoSection({
               <ChevronDown size={18} className="-rotate-90 text-slate-400 group-hover:text-gov-blue transition-colors" />
             </div>
 
-            {/* Link 2: Track Existing Complaint */}
-            <div
-              onClick={() => onTrackComplaint('GFX-2026-8942')}
-              className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-gov-blue hover:shadow cursor-pointer transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-teal-50 text-gov-teal flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-gov-navy group-hover:text-gov-teal transition-colors">
-                    {t.quickLinkTrackTitle}
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    {t.quickLinkTrackDesc}
-                  </p>
-                </div>
-              </div>
-              <ChevronDown size={18} className="-rotate-90 text-slate-400 group-hover:text-gov-teal transition-colors" />
-            </div>
-
-            {/* Link 3: Contact Support */}
+            {/* Link 2: Contact Support */}
             <div
               onClick={() => {
                 const el = document.getElementById('contact');
@@ -116,7 +94,7 @@ export default function CitizenInfoSection({
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-slate-100 text-gov-navy flex items-center justify-center font-bold">
-                  3
+                  2
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gov-navy group-hover:text-gov-blue transition-colors">
