@@ -11,7 +11,10 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initializes database schema and seed data on startup."""
-    init_db()
+    try:
+        init_db()
+    except Exception as e:
+        print(f"Notice: Database initialization deferred or encountered: {e}")
     yield
 
 

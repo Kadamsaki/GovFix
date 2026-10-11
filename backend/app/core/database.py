@@ -4,25 +4,65 @@ from urllib.parse import quote_plus
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+import re
+from urllib.parse import quote_plus, unquote_plus
+
 def normalize_database_url(raw_url: str) -> str:
     if not raw_url:
         return raw_url
     url = raw_url.strip()
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
-    elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
-        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
     
-    if "://" in url:
-        scheme_part, rest = url.split("://", 1)
-        at_parts = rest.split("@")
-        if len(at_parts) > 2:
-            host_db = at_parts[-1]
-            user_pass = "@".join(at_parts[:-1])
-            if ":" in user_pass:
-                user, password = user_pass.split(":", 1)
-                url = f"{scheme_part}://{user}:{quote_plus(password)}@{host_db}"
-    return url
+    if url.startswith("postgres://"):
+        scheme = "postgresql+psycopg2"
+        rest = url[len("postgres://"):]
+    elif url.startswith("postgresql://"):
+        scheme = "postgresql+psycopg2"
+        rest = url[len("postgresql://"):]
+    elif "://" in url:
+        scheme, rest = url.split("://", 1)
+    else:
+        return url
+
+    if "@" in rest:
+        last_at = rest.rfind("@")
+        user_pass = rest[:last_at]
+        host_db = rest[last_at + 1:]
+    else:
+        return url
+
+    if ":" in user_pass:
+        first_colon = user_pass.find(":")
+        user = user_pass[:first_colon]
+        password = user_pass[first_colon + 1:]
+    else:
+        user = user_pass
+        password = ""
+
+    db_name = "postgres"
+    if "/" in host_db:
+        host_port, db_name = host_db.split("/", 1)
+        if "?" in db_name:
+            db_name = db_name.split("?")[0]
+    else:
+        host_port = host_db
+
+    host = host_port.split(":")[0]
+    
+    # Supabase direct host (db.<ref>.supabase.co) only resolves on IPv6.
+    # AWS Lambda / Vercel requires the IPv4 pooler: aws-0-ap-southeast-1.pooler.supabase.com:6543
+    supabase_match = re.search(r"db\.([a-z0-9]+)\.supabase\.co", host)
+    if supabase_match:
+        project_ref = supabase_match.group(1)
+        host_port = "aws-0-ap-southeast-1.pooler.supabase.com:6543"
+        if not user.endswith(f".{project_ref}"):
+            user = f"{user}.{project_ref}"
+    elif "pooler.supabase.com" in host and "modfhiksytvojuwshcnp" not in user:
+        user = f"{user}.modfhiksytvojuwshcnp"
+
+    encoded_pw = quote_plus(unquote_plus(password)) if password else ""
+    auth = f"{user}:{encoded_pw}" if encoded_pw else user
+    
+    return f"{scheme}://{auth}@{host_port}/{db_name}"
 
 raw_db_url = os.getenv("DATABASE_URL")
 
