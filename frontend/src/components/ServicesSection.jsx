@@ -34,7 +34,7 @@ export default function ServicesSection({ t, onOpenRegister }) {
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-gov-navy text-xs font-bold uppercase tracking-wider mb-3">
             <ShieldCheck size={14} className="text-gov-blue" />
-            <span>Citizen Services Directory</span>
+            <span>{t.servicesTag}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gov-navy tracking-tight">
             {t.servicesTitle}
@@ -88,7 +88,7 @@ export default function ServicesSection({ t, onOpenRegister }) {
                   </button>
 
                   <span className="text-[11px] font-medium text-slate-400">
-                    SLA: 24-48 hrs
+                    {t.serviceSlaGeneral}
                   </span>
                 </div>
               </div>
@@ -102,22 +102,22 @@ export default function ServicesSection({ t, onOpenRegister }) {
                 CIV-GEN-ALL
               </span>
               <h3 className="text-lg font-bold text-white mt-4">
-                Other Civic Matters
+                {t.otherCivicTitle}
               </h3>
               <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                Park maintenance, stray animals, encroachment, open dumping, tree pruning or miscellaneous municipal matters.
+                {t.otherCivicDesc}
               </p>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => onOpenRegister('Other Civic Matters')}
+                onClick={() => onOpenRegister(t.otherCivicTitle)}
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300 cursor-pointer"
               >
                 <span>{t.btnReportIssue}</span>
                 <ArrowRight size={15} />
               </button>
-              <span className="text-[11px] text-slate-400">SLA: 48-72 hrs</span>
+              <span className="text-[11px] text-slate-400">{t.serviceSlaExtended}</span>
             </div>
           </div>
 

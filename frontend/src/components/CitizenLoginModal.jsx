@@ -1,39 +1,25 @@
 import React, { useState } from 'react';
-import { X, User, Phone, KeyRound, Shield, RefreshCw } from 'lucide-react';
+import { X, User, Lock, KeyRound, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
-export default function CitizenLoginModal({ isOpen, onClose, onLoginSuccess }) {
-  const [mobile, setMobile] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [captchaCode, setCaptchaCode] = useState('7K9P2');
+export default function CitizenLoginModal({ isOpen, onClose, onLoginSuccess, t }) {
+  const [mobile, setMobile] = useState('8448005148');
+  const [pin, setPin] = useState('1234');
 
   if (!isOpen) return null;
 
-  const handleSendOtp = (e) => {
+  const handleFormLogin = (e) => {
     e.preventDefault();
-    if (mobile.length >= 10) {
-      setOtpSent(true);
-    }
-  };
-
-  const handleVerifyOtp = (e) => {
-    e.preventDefault();
-    onLoginSuccess({ name: 'Aarav Sharma', mobile: mobile || '9876543210' });
+    onLoginSuccess({
+      name: mobile === '9822014589' ? 'Priya Patil' : 'Aarav Sharma',
+      mobile: mobile || '8448005148',
+      ward: mobile === '9822014589' ? 'Ward No. 03 (Central Market)' : 'Ward No. 14 (Shivaji Chowk)',
+    });
     onClose();
   };
 
-  const handleDemoLogin = () => {
-    onLoginSuccess({ name: 'Citizen Demo User', mobile: '9876543210' });
+  const handleProfileClick = (profile) => {
+    onLoginSuccess(profile);
     onClose();
-  };
-
-  const refreshCaptcha = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    for (let i = 0; i < 5; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setCaptchaCode(code);
   };
 
   return (
@@ -50,112 +36,144 @@ export default function CitizenLoginModal({ isOpen, onClose, onLoginSuccess }) {
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <div className="p-6 space-y-4">
-          <div className="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
-            Sign in with your registered mobile number to check complaint history, reopen tickets, and give officer feedback.
+        {/* Content */}
+        <div className="p-6 space-y-5">
+          
+          <div className="text-xs text-slate-600 bg-blue-50 p-3 rounded-lg border border-blue-200 flex items-start gap-2">
+            <ShieldCheck size={16} className="text-gov-blue shrink-0 mt-0.5" />
+            <span>
+              Sign in with your Mobile Number and 4-digit PIN to manage complaints, track resolution timelines, and submit citizen feedback.
+            </span>
           </div>
 
-          {!otpSent ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Mobile Number
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-500 font-mono">
-                    +91
-                  </span>
-                  <input
-                    type="tel"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="Enter 10-digit mobile number"
-                    maxLength={10}
-                    className="w-full text-xs sm:text-sm p-2.5 pl-12 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue font-mono"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Captcha Mockup */}
-              <div>
-                <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Security Code (CAPTCHA)
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="bg-slate-200 tracking-widest font-mono font-black text-slate-700 px-3 py-2 rounded border border-slate-300 text-sm select-none">
-                    {captchaCode}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={refreshCaptcha}
-                    className="p-2 text-slate-500 hover:text-gov-blue hover:bg-slate-100 rounded"
-                    title="Refresh Captcha"
-                  >
-                    <RefreshCw size={16} />
-                  </button>
-                  <input
-                    type="text"
-                    placeholder="Enter code"
-                    className="flex-1 text-xs sm:text-sm p-2 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue font-mono uppercase"
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-gov-blue hover:bg-gov-blueHover text-white rounded-lg text-xs sm:text-sm font-bold shadow-sm transition-all"
-              >
-                Send One-Time Password (OTP)
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Enter 4-Digit OTP sent to +91 {mobile}
-                </label>
+          {/* Simple Form Login (No OTP complexity) */}
+          <form onSubmit={handleFormLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gov-navy mb-1">
+                Registered Mobile Number / Citizen ID
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-500 font-mono">
+                  +91
+                </span>
                 <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="e.g. 1 2 3 4"
-                  maxLength={4}
-                  className="w-full text-center tracking-widest text-lg font-mono font-bold p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue"
+                  type="tel"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  placeholder="Enter 10-digit mobile number"
+                  maxLength={10}
+                  className="w-full text-xs sm:text-sm p-2.5 pl-12 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue font-mono font-medium"
                   required
                 />
-                <p className="text-[11px] text-slate-500 mt-1 text-center">
-                  (For testing/demo: enter any 4 digits or use Demo Login)
-                </p>
               </div>
+            </div>
 
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-gov-blue hover:bg-gov-blueHover text-white rounded-lg text-xs sm:text-sm font-bold shadow-sm transition-all"
-              >
-                Verify &amp; Enter Portal
-              </button>
-            </form>
-          )}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-gov-navy">
+                  Security PIN / Password
+                </label>
+                <span className="text-[11px] text-slate-400">Demo PIN: 1234</span>
+              </div>
+              <div className="relative">
+                <input
+                  type="password"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  placeholder="Enter 4-digit PIN"
+                  maxLength={6}
+                  className="w-full text-xs sm:text-sm p-2.5 pl-9 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue font-mono"
+                  required
+                />
+                <Lock size={15} className="absolute left-3 top-3 text-slate-400" />
+              </div>
+            </div>
 
-          {/* Demo Instant Login Shortcut */}
-          <div className="pt-2 border-t border-slate-200">
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-gov-blue hover:bg-gov-blueHover text-white rounded-lg text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Sign In to Citizen Portal</span>
+              <ArrowRight size={15} />
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative flex items-center justify-center">
+            <div className="border-t border-slate-200 w-full" />
+            <span className="bg-white px-2.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Or 1-Click Demo Profiles
+            </span>
+            <div className="border-t border-slate-200 w-full" />
+          </div>
+
+          {/* 1-Click Demo Citizen Profiles */}
+          <div className="space-y-2">
             <button
               type="button"
-              onClick={handleDemoLogin}
-              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
+              onClick={() =>
+                handleProfileClick({
+                  name: 'Aarav Sharma',
+                  mobile: '8448005148',
+                  ward: 'Ward No. 14 (Shivaji Chowk)',
+                })
+              }
+              className="w-full p-3 rounded-xl border border-slate-200 hover:border-gov-blue bg-slate-50 hover:bg-blue-50/50 text-left transition-all flex items-center justify-between group cursor-pointer"
             >
-              Demo Quick Login (1-Click Preview)
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-gov-blue flex items-center justify-center font-bold text-xs">
+                  AS
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-gov-navy group-hover:text-gov-blue">
+                    Aarav Sharma
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    +91 8448005148 • Ward 14
+                  </div>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-gov-blue group-hover:translate-x-0.5 transition-transform">
+                Sign In →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                handleProfileClick({
+                  name: 'Priya Patil',
+                  mobile: '9822014589',
+                  ward: 'Ward No. 03 (Central Market)',
+                })
+              }
+              className="w-full p-3 rounded-xl border border-slate-200 hover:border-gov-teal bg-slate-50 hover:bg-teal-50/50 text-left transition-all flex items-center justify-between group cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-teal-100 text-gov-teal flex items-center justify-center font-bold text-xs">
+                  PP
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-gov-navy group-hover:text-gov-teal">
+                    Priya Patil
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    +91 9822014589 • Ward 03
+                  </div>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-gov-teal group-hover:translate-x-0.5 transition-transform">
+                Sign In →
+              </span>
             </button>
           </div>
+
         </div>
 
       </div>

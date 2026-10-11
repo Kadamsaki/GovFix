@@ -1,7 +1,7 @@
 import React from 'react';
-import { X, Phone, Mail, Clock, MapPin, ShieldCheck, AlertCircle } from 'lucide-react';
+import { X, Phone, Mail, Clock, MapPin } from 'lucide-react';
 
-export default function HelpdeskModal({ isOpen, onClose }) {
+export default function HelpdeskModal({ isOpen, onClose, t }) {
   if (!isOpen) return null;
 
   return (
@@ -13,7 +13,7 @@ export default function HelpdeskModal({ isOpen, onClose }) {
           <div className="flex items-center gap-2">
             <Phone size={18} className="text-gov-saffron" />
             <h3 className="text-sm sm:text-base font-bold">
-              Municipal Helpdesk &amp; Grievance Contacts
+              {t.modalHelpdeskTitle}
             </h3>
           </div>
           <button
@@ -31,7 +31,7 @@ export default function HelpdeskModal({ isOpen, onClose }) {
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between">
             <div>
               <span className="text-[11px] font-bold uppercase text-gov-blue">
-                Toll-Free Public Helpline
+                {t.helpdeskTollFreeBadge}
               </span>
               <div className="text-xl font-black text-gov-navy font-mono">
                 1800-11-2026
@@ -47,9 +47,9 @@ export default function HelpdeskModal({ isOpen, onClose }) {
             <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
               <Clock size={16} className="text-gov-teal shrink-0 mt-0.5" />
               <div>
-                <strong className="text-gov-navy block">Operating Hours</strong>
+                <strong className="text-gov-navy block">{t.helpdeskHoursTitle}</strong>
                 <span className="text-slate-600">
-                  Monday to Saturday: 08:00 AM – 08:00 PM (Emergency civic dispatches active 24/7)
+                  {t.helpdeskHoursText}
                 </span>
               </div>
             </div>
@@ -57,17 +57,17 @@ export default function HelpdeskModal({ isOpen, onClose }) {
             <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
               <Mail size={16} className="text-gov-blue shrink-0 mt-0.5" />
               <div>
-                <strong className="text-gov-navy block">Email Support</strong>
-                <span className="text-slate-600">helpdesk@govfix.org / grievance-cell@govfix.org</span>
+                <strong className="text-gov-navy block">{t.helpdeskEmailTitle}</strong>
+                <span className="text-slate-600">{t.helpdeskEmailText}</span>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
               <MapPin size={16} className="text-emerald-700 shrink-0 mt-0.5" />
               <div>
-                <strong className="text-gov-navy block">Central Municipal HQ</strong>
+                <strong className="text-gov-navy block">{t.helpdeskHqTitle}</strong>
                 <span className="text-slate-600">
-                  Municipal Corporation Central Building, Public Grievance Wing, Ground Floor
+                  {t.helpdeskHqText}
                 </span>
               </div>
             </div>
@@ -78,7 +78,7 @@ export default function HelpdeskModal({ isOpen, onClose }) {
               onClick={onClose}
               className="w-full py-2.5 bg-gov-navy hover:bg-slate-800 text-white rounded-lg font-bold text-xs sm:text-sm"
             >
-              Close Helpdesk
+              {t.btnCloseHelpdesk}
             </button>
           </div>
 

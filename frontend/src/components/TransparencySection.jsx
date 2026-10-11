@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ShieldAlert,
   Clock,
@@ -7,10 +7,12 @@ import {
   UserCheck,
   MapPin,
   CheckCircle,
-  AlertCircle,
-  ExternalLink,
   Award,
+  Activity,
+  AlertCircle,
+  Eye,
 } from 'lucide-react';
+import { mockComplaintsData } from '../data/mockComplaints';
 
 const pillarIcons = [
   Clock,
@@ -20,7 +22,16 @@ const pillarIcons = [
   UserCheck,
 ];
 
-export default function TransparencySection({ t }) {
+export default function TransparencySection({ t, trackedComplaintId }) {
+  const [activeComplaintId, setActiveComplaintId] = useState(
+    trackedComplaintId || mockComplaintsData[0].id
+  );
+
+  // If a trackedComplaintId is passed or changes, use it
+  const activeComplaint =
+    mockComplaintsData.find((c) => c.id === (trackedComplaintId || activeComplaintId)) ||
+    mockComplaintsData[0];
+
   return (
     <section id="transparency" className="py-16 sm:py-20 bg-white border-b border-gov-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +40,7 @@ export default function TransparencySection({ t }) {
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-gov-teal text-xs font-bold uppercase tracking-wider mb-3">
             <Award size={14} />
-            <span>Public Accountability Standards</span>
+            <span>{t.transparencyTag}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gov-navy tracking-tight">
             {t.transparencyTitle}
@@ -62,86 +73,208 @@ export default function TransparencySection({ t }) {
             );
           })}
 
-          {/* 6th Box: Citizen Audit Charter */}
+          {/* 6th Box: Citizen Social Audit */}
           <div className="bg-gradient-to-br from-gov-navy to-slate-900 text-white rounded-xl p-6 flex flex-col justify-between shadow-sm">
             <div>
               <div className="w-10 h-10 rounded-lg bg-slate-800 text-sky-400 flex items-center justify-center mb-4">
                 <ShieldAlert size={20} />
               </div>
               <h3 className="text-base font-bold text-white mb-2">
-                Citizen Social Audit
+                {t.socialAuditTitle}
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Aggregated ward resolution data and department performance rankings are publicly accessible every 30 days.
+                {t.socialAuditDesc}
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-700/80 text-[11px] text-sky-300 font-semibold">
-              Open Public Data Compliant
+              {t.socialAuditBadge}
             </div>
           </div>
         </div>
 
-        {/* Visual Sample Complaint-Tracking Timeline */}
-        <div id="sample-timeline" className="bg-slate-50 rounded-2xl border-2 border-slate-300/80 p-6 sm:p-8 shadow-gov">
+        {/* Visual Dynamic Complaint-Tracking Demonstration */}
+        <div id="sample-timeline" className="bg-slate-50 rounded-2xl border-2 border-slate-300/80 p-6 sm:p-8 shadow-gov transition-all">
           
-          {/* Header of Mock Timeline Card */}
+          {/* Timeline Switcher Chips (Dynamic states: In Progress, Under Inspection, Resolved) */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gov-navy uppercase tracking-wide">
+                Live Public Demonstrations:
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {mockComplaintsData.map((c) => {
+                const isSelected = c.id === activeComplaint.id;
+                const statusBadge =
+                  c.status === 'in_progress'
+                    ? 'bg-amber-100 text-amber-900 border-amber-300'
+                    : c.status === 'assigned'
+                    ? 'bg-sky-100 text-sky-900 border-sky-300'
+                    : 'bg-emerald-100 text-emerald-900 border-emerald-300';
+
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setActiveComplaintId(c.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-gov-navy text-white border-gov-navy shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="font-mono">{c.id}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${statusBadge}`}>
+                      {c.status === 'in_progress' ? 'In Progress' : c.status === 'assigned' ? 'Assigned' : 'Resolved'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Header of Active Complaint Demonstration */}
           <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-200 gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-gov-blue mb-2">
-                <span>{t.sampleTimelineBadge}</span>
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-gov-blue">
+                <span>Complaint ID: {activeComplaint.id}</span>
+                <span>•</span>
+                <span>{activeComplaint.category}</span>
               </div>
-              <h3 className="text-xl font-bold text-gov-navy flex items-center gap-2">
-                <span>{t.sampleComplaintNumber}</span>
-                <span className="text-xs px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  {t.sampleStatus}
+              <h3 className="text-xl font-bold text-gov-navy flex flex-wrap items-center gap-2">
+                <span>{activeComplaint.title}</span>
+                <span
+                  className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
+                    activeComplaint.status === 'in_progress'
+                      ? 'bg-amber-100 text-amber-800 border-amber-300'
+                      : activeComplaint.status === 'assigned'
+                      ? 'bg-sky-100 text-sky-800 border-sky-300'
+                      : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                  }`}
+                >
+                  {activeComplaint.statusLabel}
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+              <p className="text-xs text-slate-500 flex items-center gap-1.5">
                 <MapPin size={13} className="text-slate-400" />
-                <span>{t.sampleWard}</span>
+                <span>{activeComplaint.location} • {activeComplaint.ward}</span>
               </p>
             </div>
 
             {/* Officer & SLA Summary Chips */}
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <div className="bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-sm">
-                <div className="text-[10px] uppercase font-bold text-slate-400">Assigned Officer</div>
-                <div className="font-semibold text-gov-navy">{t.sampleOfficer}</div>
+                <div className="text-[10px] uppercase font-bold text-slate-400">{t.assignedOfficerLabel}</div>
+                <div className="font-semibold text-gov-navy">{activeComplaint.assignedOfficer}</div>
               </div>
               <div className="bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-sm">
-                <div className="text-[10px] uppercase font-bold text-slate-400">SLA Performance</div>
-                <div className="font-semibold text-emerald-700">{t.sampleSla}</div>
+                <div className="text-[10px] uppercase font-bold text-slate-400">{t.slaPerformanceLabel}</div>
+                <div className="font-semibold text-emerald-700">{activeComplaint.slaStatusText}</div>
               </div>
             </div>
           </div>
 
+          {/* Stepper Progress Indicator */}
+          <div className="py-4">
+            <div className="flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
+              <span className="flex items-center gap-1.5 text-gov-navy">
+                <Activity size={14} className="text-gov-blue" />
+                Current Redressal Stage: Step {activeComplaint.currentStepIndex + 1} of 5
+              </span>
+              <span className="font-mono text-gov-blue">
+                {activeComplaint.status === 'resolved'
+                  ? 'All 5 Steps Completed'
+                  : `Step ${activeComplaint.currentStepIndex + 1} In Action`}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {[0, 1, 2, 3, 4].map((idx) => {
+                const isDone = idx < activeComplaint.currentStepIndex || activeComplaint.status === 'resolved';
+                const isCurrent = idx === activeComplaint.currentStepIndex && activeComplaint.status !== 'resolved';
+
+                return (
+                  <div
+                    key={idx}
+                    className={`h-2 flex-1 rounded-full transition-all ${
+                      isDone
+                        ? 'bg-emerald-500'
+                        : isCurrent
+                        ? 'bg-amber-500 animate-pulse'
+                        : 'bg-slate-200'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
           {/* Stepper Timeline Events */}
-          <div className="mt-8 relative">
+          <div className="mt-4 relative">
             <div className="hidden md:block absolute left-4 top-3 bottom-3 w-0.5 bg-slate-300" />
 
-            <div className="space-y-6">
-              {t.timelineEvents.map((evt, idx) => (
-                <div key={idx} className="relative flex flex-col md:flex-row md:items-start gap-4 pl-0 md:pl-10">
-                  {/* Timeline Dot */}
-                  <div className="hidden md:flex absolute left-2.5 -translate-x-1/2 top-1 w-4 h-4 rounded-full bg-gov-blue border-4 border-white shadow-sm items-center justify-center z-10" />
+            <div className="space-y-5">
+              {activeComplaint.timeline.map((evt, idx) => {
+                const isDone = evt.completed;
+                const isCurrent = evt.isActive;
 
-                  {/* Timestamp Box */}
-                  <div className="md:w-36 shrink-0 text-xs font-mono font-bold text-slate-500 bg-white md:bg-transparent px-2 py-1 md:p-0 rounded border md:border-0 border-slate-200 w-fit">
-                    {evt.time}
-                  </div>
+                return (
+                  <div key={idx} className="relative flex flex-col md:flex-row md:items-start gap-4 pl-0 md:pl-10">
+                    {/* Timeline Dot */}
+                    <div
+                      className={`hidden md:flex absolute left-2.5 -translate-x-1/2 top-1 w-5 h-5 rounded-full border-2 items-center justify-center text-[10px] font-bold z-10 ${
+                        isDone
+                          ? 'bg-emerald-600 text-white border-white shadow-sm'
+                          : isCurrent
+                          ? 'bg-amber-500 text-white border-white ring-4 ring-amber-200 animate-pulse'
+                          : 'bg-slate-200 text-slate-500 border-white'
+                      }`}
+                    >
+                      {isDone ? '✓' : idx + 1}
+                    </div>
 
-                  {/* Content Box */}
-                  <div className="flex-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <h4 className="text-sm font-bold text-gov-navy flex items-center gap-2">
-                      <CheckCircle size={15} className="text-emerald-600" />
-                      <span>{evt.title}</span>
-                    </h4>
-                    <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                      {evt.detail}
-                    </p>
+                    {/* Timestamp Box */}
+                    <div className="md:w-44 shrink-0 text-xs font-mono font-bold text-slate-500 bg-white md:bg-transparent px-2 py-1 md:p-0 rounded border md:border-0 border-slate-200 w-fit">
+                      {evt.time}
+                    </div>
+
+                    {/* Content Box */}
+                    <div
+                      className={`flex-1 p-4 rounded-xl border shadow-sm ${
+                        isCurrent
+                          ? 'bg-amber-50/80 border-amber-300 ring-1 ring-amber-300'
+                          : isDone
+                          ? 'bg-white border-slate-200'
+                          : 'bg-slate-100/60 border-slate-200 opacity-60'
+                      }`}
+                    >
+                      <h4 className="text-sm font-bold text-gov-navy flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          {isDone ? (
+                            <CheckCircle size={15} className="text-emerald-600" />
+                          ) : isCurrent ? (
+                            <Activity size={15} className="text-amber-600 animate-spin" />
+                          ) : (
+                            <Clock size={15} className="text-slate-400" />
+                          )}
+                          <span>{evt.title}</span>
+                        </span>
+                        {isCurrent && (
+                          <span className="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded border border-amber-200">
+                            Active Step
+                          </span>
+                        )}
+                      </h4>
+                      <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                        {evt.detail}
+                      </p>
+                      <div className="mt-2 text-[11px] text-slate-400 font-medium">
+                        Action by: <strong className="text-slate-700">{evt.officer}</strong>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

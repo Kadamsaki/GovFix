@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Phone, Mail, MapPin, ExternalLink, AlertCircle } from 'lucide-react';
+import { Shield, Phone, Mail, MapPin, AlertCircle } from 'lucide-react';
 
 export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
   const scrollToSection = (id) => {
@@ -42,15 +42,15 @@ export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
             <div className="space-y-2 pt-2 text-slate-300">
               <div className="flex items-center gap-2">
                 <Phone size={14} className="text-gov-saffron shrink-0" />
-                <span>Toll-Free Helpline: <strong>1800-11-2026</strong> (8 AM - 8 PM)</span>
+                <span>{t.footerTollFree}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail size={14} className="text-sky-400 shrink-0" />
-                <span>Citizen Helpdesk: helpdesk@govfix.org</span>
+                <span>{t.footerHelpdeskEmail}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin size={14} className="text-emerald-400 shrink-0" />
-                <span>Municipal Corporation HQ, Civic Centre, Ward 01</span>
+                <span>{t.footerHQAddress}</span>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
                   onClick={() => onTrackComplaint('GFX-2026-8942')}
                   className="text-sky-400 hover:text-sky-300 font-semibold"
                 >
-                  → Track Registered Complaint
+                  {t.trackRegisteredComplaint}
                 </button>
               </li>
             </ul>
@@ -139,27 +139,27 @@ export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
             <ul className="space-y-2 text-slate-400">
               <li>
                 <a href="#accessibility" className="hover:text-white transition-colors">
-                  Accessibility Statement
+                  {t.policyAccessibility}
                 </a>
               </li>
               <li>
                 <a href="#privacy" className="hover:text-white transition-colors">
-                  Privacy Policy &amp; Data Safeguards
+                  {t.policyPrivacy}
                 </a>
               </li>
               <li>
                 <a href="#terms" className="hover:text-white transition-colors">
-                  Terms of Public Service
+                  {t.policyTerms}
                 </a>
               </li>
               <li>
                 <a href="#charter" className="hover:text-white transition-colors">
-                  Citizen Charter &amp; SLA Guidelines
+                  {t.policyCharter}
                 </a>
               </li>
               <li>
                 <a href="#hyperlink" className="hover:text-white transition-colors">
-                  Hyperlinking Policy
+                  {t.policyHyperlink}
                 </a>
               </li>
             </ul>
@@ -172,7 +172,7 @@ export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
           <AlertCircle size={20} className="text-gov-saffron shrink-0 mt-0.5" />
           <div>
             <span className="font-bold text-white block mb-0.5">
-              Legal Disclaimer &amp; Prototype Notice:
+              {t.disclaimerHeading}
             </span>
             <p className="text-xs text-slate-300 leading-relaxed">
               {t.footerDisclaimer}
@@ -184,9 +184,9 @@ export default function Footer({ t, onOpenRegister, onTrackComplaint }) {
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-xs">
           <div>{t.copyright}</div>
           <div className="flex items-center gap-4 text-[11px]">
-            <span>Content Managed by Municipal Grievance Cell</span>
+            <span>{t.footerContentManaged}</span>
             <span>•</span>
-            <span>WCAG 2.1 AA Compliant</span>
+            <span>{t.footerWcag}</span>
           </div>
         </div>
 

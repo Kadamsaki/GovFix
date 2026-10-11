@@ -25,7 +25,7 @@ export default function HowItWorksSection({ t }) {
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-gov-blue text-xs font-bold uppercase tracking-wider mb-3">
             <Workflow size={14} />
-            <span>Standard Operating Procedure</span>
+            <span>{t.howItWorksTag}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gov-navy tracking-tight">
             {t.howItWorksTitle}
@@ -73,8 +73,8 @@ export default function HowItWorksSection({ t }) {
 
                   {/* Step Footer Badge */}
                   <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400">
-                    <span>Phase {index + 1}</span>
-                    <span className="text-gov-teal">Verified</span>
+                    <span>{t.phaseLabel} {index + 1}</span>
+                    <span className="text-gov-teal">{t.statusVerified}</span>
                   </div>
                 </div>
               );
@@ -90,15 +90,15 @@ export default function HowItWorksSection({ t }) {
             </div>
             <div>
               <h4 className="text-sm font-bold text-gov-navy">
-                Strict Time-Bound Resolution Guarantee (Citizen Charter)
+                {t.slaGuaranteeTitle}
               </h4>
               <p className="text-xs text-slate-600">
-                Every grievance is tracked under municipal service level standards with automated escalation alerts.
+                {t.slaGuaranteeDesc}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0 text-xs font-bold text-gov-blue">
-            <span>Standard SLA: 24 to 72 Hours</span>
+            <span>{t.slaGuaranteeBadge}</span>
           </div>
         </div>
 

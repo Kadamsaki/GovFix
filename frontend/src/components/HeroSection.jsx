@@ -45,7 +45,7 @@ export default function HeroSection({
               <span className="w-2 h-2 rounded-full bg-gov-blue animate-pulse" />
               <span>{t.heroBadge}</span>
               <span className="text-slate-300">•</span>
-              <span className="text-slate-600 font-medium">Digital India Civic Vision</span>
+              <span className="text-slate-600 font-medium">{t.heroBadgeVision}</span>
             </div>
 
             {/* Main Headline */}
@@ -130,7 +130,7 @@ export default function HeroSection({
                 </div>
 
                 <span className="bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded">
-                  24/7 ACTIVE
+                  {t.statActiveBadge}
                 </span>
               </div>
 
@@ -146,7 +146,7 @@ export default function HeroSection({
                     </div>
                     <div className="text-2xl font-black text-gov-navy">94.2%</div>
                     <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                      +3.8% faster than SLA
+                      {t.metricFasterSla}
                     </div>
                   </div>
 
@@ -156,9 +156,9 @@ export default function HeroSection({
                       <span>{t.statAvgSla}</span>
                       <Clock size={14} className="text-gov-blue" />
                     </div>
-                    <div className="text-2xl font-black text-gov-navy">31.4 <span className="text-xs font-semibold text-slate-500">hrs</span></div>
+                    <div className="text-2xl font-black text-gov-navy">31.4 <span className="text-xs font-semibold text-slate-500">{t.unitHrs}</span></div>
                     <div className="text-[11px] text-sky-700 font-medium mt-0.5">
-                      Standard: 48-72 hrs
+                      {t.metricStandardSla}
                     </div>
                   </div>
 
@@ -168,9 +168,9 @@ export default function HeroSection({
                       <span>{t.statActiveWards}</span>
                       <Building2 size={14} className="text-purple-600" />
                     </div>
-                    <div className="text-2xl font-black text-gov-navy">48 <span className="text-xs font-semibold text-slate-500">wards</span></div>
+                    <div className="text-2xl font-black text-gov-navy">48 <span className="text-xs font-semibold text-slate-500">{t.unitWards}</span></div>
                     <div className="text-[11px] text-purple-700 font-medium mt-0.5">
-                      100% Ward Coverage
+                      {t.metricWardCoverage}
                     </div>
                   </div>
 
@@ -182,7 +182,7 @@ export default function HeroSection({
                     </div>
                     <div className="text-2xl font-black text-gov-navy">18,490+</div>
                     <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                      Verified by citizens
+                      {t.metricCitizenVerified}
                     </div>
                   </div>
 
@@ -193,9 +193,9 @@ export default function HeroSection({
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 text-xs font-semibold text-slate-600">
                     <span className="flex items-center gap-1.5">
                       <Sparkles size={13} className="text-gov-blue" />
-                      Latest AI Triage &amp; Dispatch
+                      {t.liveTriageHeader}
                     </span>
-                    <span className="text-[10px] text-slate-400">Just now</span>
+                    <span className="text-[10px] text-slate-400">{t.liveTriageJustNow}</span>
                   </div>
 
                   <div className="mt-2.5 flex items-start gap-3 text-xs">
@@ -205,15 +205,15 @@ export default function HeroSection({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-gov-navy truncate">
-                          Water Main Leakage - Ward 14
+                          {t.liveTriageSampleTitle}
                         </span>
                         <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.2 rounded">
-                          In Progress
+                          {t.liveTriageStatusInProgress}
                         </span>
                       </div>
                       <p className="text-slate-500 text-[11px] mt-0.5 truncate flex items-center gap-1">
                         <MapPin size={11} className="text-slate-400" />
-                        Station Road • Er. Rajesh Sharma dispatched
+                        {t.liveTriageOfficerRemark}
                       </p>
                     </div>
                   </div>

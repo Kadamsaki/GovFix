@@ -6,6 +6,7 @@ export const translations = {
     contactSupport: "Helpdesk",
     accessibility: "Accessibility",
     selectLanguage: "Language",
+    textSizeNotice: "Font size set to",
 
     // Main Navigation
     portalTitle: "GovFix",
@@ -22,6 +23,7 @@ export const translations = {
 
     // Hero Section
     heroBadge: "Digital Civic Redressal Engine",
+    heroBadgeVision: "Digital India Civic Vision",
     heroHeading: "Your City. Your Voice. Our Responsibility.",
     heroSubtext: "Report civic issues, track your complaints and stay informed about every action taken. GovFix makes municipal grievance redressal simpler, faster and more transparent.",
     btnHeroRegister: "Register a Complaint",
@@ -37,11 +39,28 @@ export const translations = {
     statActiveWards: "Active Municipal Wards",
     statResolvedToday: "Grievances Resolved",
     statLiveStatus: "Real-time AI Redressal Active",
+    statActiveBadge: "24/7 ACTIVE",
+    unitHrs: "hrs",
+    unitWards: "wards",
+    metricFasterSla: "+3.8% faster than SLA",
+    metricStandardSla: "Standard: 48-72 hrs",
+    metricWardCoverage: "100% Ward Coverage",
+    metricCitizenVerified: "Verified by citizens",
+    liveTriageHeader: "Latest AI Triage & Dispatch",
+    liveTriageJustNow: "Just now",
+    liveTriageSampleTitle: "Water Main Leakage - Ward 14",
+    liveTriageStatusInProgress: "In Progress",
+    liveTriageOfficerRemark: "Station Road • Er. Rajesh Sharma dispatched",
 
     // Services Section
+    servicesTag: "Citizen Services Directory",
     servicesTitle: "Report Your Civic Issues",
     servicesSubtitle: "Select a municipal service category to file your grievance directly with the concerned department.",
     btnReportIssue: "Report Issue",
+    serviceSlaGeneral: "SLA: 24-48 hrs",
+    serviceSlaExtended: "SLA: 48-72 hrs",
+    otherCivicTitle: "Other Civic Matters",
+    otherCivicDesc: "Park maintenance, stray animals, encroachment, open dumping, tree pruning or miscellaneous municipal matters.",
     services: [
       {
         id: "garbage",
@@ -70,9 +89,37 @@ export const translations = {
       },
     ],
 
+    // About Section
+    aboutTag: "Civic Mission & Purpose",
+    aboutTitle: "About GovFix Platform",
+    aboutDesc: "GovFix bridges the critical gap between citizens and municipal bodies by modernizing public grievance redressal into an intelligent, transparent, and time-bound civic resolution system.",
+    aboutPillars: [
+      {
+        title: "Citizen-Centric Access",
+        desc: "Simple, accessible reporting for every citizen across English, Hindi, and Marathi. Submit grievances in under 60 seconds with photos and geo-location.",
+        badge: "Zero Technical Friction",
+      },
+      {
+        title: "AI-Powered Triage & Routing",
+        desc: "Eliminate bureaucratic delays with automated classification. AI accurately categorizes grievances, tags jurisdictional wards, and detects duplicate complaints.",
+        badge: "Instant Ward Dispatch",
+      },
+      {
+        title: "Enforceable SLAs & Accountability",
+        desc: "Every grievance is time-stamped with clear Citizen Charter deadlines. Automatic alerts notify senior municipal officers if maintenance is delayed.",
+        badge: "Verified Photo Resolution",
+      },
+    ],
+
     // How It Works
+    howItWorksTag: "Standard Operating Procedure",
     howItWorksTitle: "How GovFix Works",
     howItWorksSubtitle: "A transparent 5-step automated workflow ensuring time-bound accountability for every citizen complaint.",
+    phaseLabel: "Phase",
+    statusVerified: "Verified",
+    slaGuaranteeTitle: "Strict Time-Bound Resolution Guarantee (Citizen Charter)",
+    slaGuaranteeDesc: "Every grievance is tracked under municipal service level standards with automated escalation alerts.",
+    slaGuaranteeBadge: "Standard SLA: 24 to 72 Hours",
     steps: [
       {
         number: "01",
@@ -102,8 +149,14 @@ export const translations = {
     ],
 
     // Transparency & Accountability
+    transparencyTag: "Public Accountability Standards",
     transparencyTitle: "Transparency & Municipal Accountability",
     transparencySubtitle: "Empowering citizens with end-to-end visibility, officer accountability, and automated grievance escalation.",
+    socialAuditTitle: "Citizen Social Audit",
+    socialAuditDesc: "Aggregated ward resolution data and department performance rankings are publicly accessible every 30 days.",
+    socialAuditBadge: "Open Public Data Compliant",
+    assignedOfficerLabel: "Assigned Officer",
+    slaPerformanceLabel: "SLA Performance",
     pillars: [
       {
         title: "Real-Time Tracking",
@@ -164,12 +217,20 @@ export const translations = {
     ],
 
     // Citizen Info & FAQ
+    citizenInfoTag: "Citizen Resource Center",
     citizenInfoTitle: "Citizen Guide & Help Center",
     citizenInfoSubtitle: "Everything you need to know about registering, tracking, and resolving municipal grievances.",
     noticeHeading: "Official Notice for Citizens",
     noticeBody: "Please do NOT submit sensitive personal information such as Aadhaar numbers, PAN details, bank account numbers, or OTPs in grievance descriptions. Only describe the civic problem and its geographical location.",
     quickLinksTitle: "Quick Access",
+    securityAssuranceText: "Complaints are safeguarded with public record tamper-evidence and data protection guidelines.",
     faqTitle: "Frequently Asked Questions",
+    quickLinkHowToTitle: "How to Register a Complaint",
+    quickLinkHowToDesc: "Step-by-step guidance on submitting grievance details with photos",
+    quickLinkTrackTitle: "Track Existing Complaint",
+    quickLinkTrackDesc: "Check current stage, assigned officer, and estimated resolution SLA",
+    quickLinkContactTitle: "Contact Support & Ward Helpline",
+    quickLinkContactDesc: "Toll-free numbers and zonal municipal contact directory",
     faqs: [
       {
         q: "How long does it take for a complaint to be resolved?",
@@ -191,12 +252,77 @@ export const translations = {
 
     // Footer
     footerDesc: "GovFix is an AI-powered municipal grievance redressal initiative dedicated to transparent, responsive, and accountable local governance for all citizens.",
+    footerTollFree: "Toll-Free Helpline: 1800-11-2026 (8 AM - 8 PM)",
+    footerHelpdeskEmail: "Citizen Helpdesk: helpdesk@govfix.org",
+    footerHQAddress: "Municipal Corporation HQ, Civic Centre, Ward 01",
+    trackRegisteredComplaint: "→ Track Registered Complaint",
     quickLinksHeader: "Quick Links",
     servicesHeader: "Citizen Services",
     supportHeader: "Help & Redressal",
     accessibilityHeader: "Accessibility & Policies",
+    policyAccessibility: "Accessibility Statement",
+    policyPrivacy: "Privacy Policy & Data Safeguards",
+    policyTerms: "Terms of Public Service",
+    policyCharter: "Citizen Charter & SLA Guidelines",
+    policyHyperlink: "Hyperlinking Policy",
+    disclaimerHeading: "Legal Disclaimer & Prototype Notice:",
     footerDisclaimer: "GovFix is a hackathon prototype developed to demonstrate an AI-assisted municipal grievance redressal system. It is not an official government portal.",
     copyright: "© 2026 GovFix Initiative. Developed for transparent municipal governance.",
+    footerContentManaged: "Content Managed by Municipal Grievance Cell",
+    footerWcag: "WCAG 2.1 AA Compliant",
+
+    // Modals: Register Complaint
+    modalRegisterTitle: "Citizen Grievance Registration",
+    modalNoticeText: "Notice: Do NOT enter sensitive personal information such as Aadhaar or bank account numbers.",
+    fieldCategory: "Civic Category",
+    fieldWard: "Municipal Ward / Zone",
+    fieldLocation: "Location / Nearest Landmark",
+    fieldLocationPlaceholder: "e.g. Opposite State Bank, Near Pillar No. 42",
+    fieldDescription: "Problem Description",
+    fieldDescriptionPlaceholder: "Describe the issue clearly (e.g. size of pothole, frequency of water disruption)",
+    fieldPhoto: "Attach Photo / Video Proof (Optional)",
+    fieldPhotoUploadText: "Click to select image or drag & drop (Max 5MB)",
+    fieldMobile: "Citizen Mobile Number",
+    fieldMobilePlaceholder: "10-digit mobile number for SMS tracking updates",
+    btnCancel: "Cancel",
+    btnSubmitGrievance: "Submit Grievance",
+    successSubmittedTitle: "Grievance Submitted Successfully!",
+    successSubmittedDesc: "Your civic complaint has been registered and forwarded to the AI triage engine for ward engineer assignment.",
+    successRefLabel: "Reference ID:",
+    successSmsNotice: "An SMS confirmation has been sent to your registered mobile number.",
+    btnTrackNow: "Track This Complaint Now",
+
+    // Modals: Citizen Login & OTP Simulation
+    modalLoginTitle: "Citizen Portal Login",
+    modalLoginDesc: "Sign in with your registered mobile number to check complaint history, reopen tickets, and give officer feedback.",
+    fieldLoginMobile: "Mobile Number",
+    fieldLoginMobilePlaceholder: "Enter 10-digit mobile number",
+    fieldCaptcha: "Security Code (CAPTCHA)",
+    fieldCaptchaPlaceholder: "Enter code",
+    btnSendOtp: "Send One-Time Password (OTP)",
+    labelEnterOtp: "Enter 4-Digit OTP sent to +91",
+    otpHelperDemo: "Check the simulated SMS notification above or click Auto-fill",
+    btnVerifyOtp: "Verify & Enter Portal",
+    btnDemoLogin: "Demo Quick Login (1-Click Preview)",
+    smsBannerTitle: "SIMULATED SMS NOTIFICATION",
+    smsBannerBody: "Your GovFix Verification OTP is",
+    smsBannerValid: "Valid for 10 minutes. Do not share this OTP with anyone.",
+    btnAutoFillOtp: "Auto-fill OTP",
+    resendOtpIn: "Resend OTP in",
+    secondsUnit: "s",
+    signedInAs: "Signed in as:",
+    btnSignOut: "Sign Out",
+
+    // Modals: Helpdesk
+    modalHelpdeskTitle: "Municipal Helpdesk & Grievance Contacts",
+    helpdeskTollFreeBadge: "Toll-Free Public Helpline",
+    helpdeskHoursTitle: "Operating Hours",
+    helpdeskHoursText: "Monday to Saturday: 08:00 AM – 08:00 PM (Emergency civic dispatches active 24/7)",
+    helpdeskEmailTitle: "Email Support",
+    helpdeskEmailText: "helpdesk@govfix.org / grievance-cell@govfix.org",
+    helpdeskHqTitle: "Central Municipal HQ",
+    helpdeskHqText: "Municipal Corporation Central Building, Public Grievance Wing, Ground Floor",
+    btnCloseHelpdesk: "Close Helpdesk",
   },
 
   hi: {
@@ -206,6 +332,7 @@ export const translations = {
     contactSupport: "हेल्पडेस्क",
     accessibility: "सुलभता",
     selectLanguage: "भाषा चुनें",
+    textSizeNotice: "फ़ॉन्ट आकार सेट किया गया:",
 
     // Main Navigation
     portalTitle: "गॉवफिक्स (GovFix)",
@@ -222,6 +349,7 @@ export const translations = {
 
     // Hero Section
     heroBadge: "डिजिटल जन शिकायत निवारण इंजन",
+    heroBadgeVision: "डिजिटल इंडिया जन सेवा विज़न",
     heroHeading: "आपका शहर। आपकी आवाज़। हमारी ज़िम्मेदारी।",
     heroSubtext: "नागरिक समस्याओं की शिकायत दर्ज करें, स्थिति ट्रैक करें और की गई हर कार्रवाई की जानकारी प्राप्त करें। गॉवफिक्स नगर निकाय शिकायत निवारण को अधिक सरल, तीव्र और पारदर्शी बनाता है।",
     btnHeroRegister: "शिकायत दर्ज करें",
@@ -237,11 +365,28 @@ export const translations = {
     statActiveWards: "सक्रिय नगरपालिका वार्ड",
     statResolvedToday: "कुल निवारित शिकायतें",
     statLiveStatus: "रीयल-टाइम एआई निवारण सक्रिय",
+    statActiveBadge: "24/7 सक्रिय",
+    unitHrs: "घंटे",
+    unitWards: "वार्ड",
+    metricFasterSla: "+3.8% समय-सीमा से तीव्र",
+    metricStandardSla: "मानक: 48-72 घंटे",
+    metricWardCoverage: "100% वार्ड व्याप्ति",
+    metricCitizenVerified: "नागरिकों द्वारा सत्यापित",
+    liveTriageHeader: "नवीनतम एआई विश्लेषण व कार्य आवंटन",
+    liveTriageJustNow: "अभी-अभी",
+    liveTriageSampleTitle: "मुख्य जलवाहिनी लीकेज - वार्ड 14",
+    liveTriageStatusInProgress: "प्रगति पर",
+    liveTriageOfficerRemark: "स्टेशन रोड • इंजी. राजेश शर्मा फील्ड पर तैनात",
 
     // Services Section
+    servicesTag: "नागरिक सेवा निर्देशिका",
     servicesTitle: "अपनी नागरिक समस्याएं दर्ज करें",
     servicesSubtitle: "संबंधित विभाग को सीधे अपनी शिकायत प्रेषित करने के लिए सेवा श्रेणी चुनें।",
     btnReportIssue: "शिकायत दर्ज करें",
+    serviceSlaGeneral: "समाधान समय: 24-48 घंटे",
+    serviceSlaExtended: "समाधान समय: 48-72 घंटे",
+    otherCivicTitle: "अन्य नागरिक समस्याएं",
+    otherCivicDesc: "पार्क रखरखाव, आवारा पशु, अतिक्रमण, खुला कचरा, पेड़ों की छंटाई अथवा विविध नगरपालिका मामले।",
     services: [
       {
         id: "garbage",
@@ -270,9 +415,37 @@ export const translations = {
       },
     ],
 
+    // About Section
+    aboutTag: "नागरिक मिशन एवं उद्देश्य",
+    aboutTitle: "गॉवफिक्स पोर्टल के बारे में",
+    aboutDesc: "गॉवफिक्स जन शिकायतों के निवारण को एक बुद्धिमान, पारदर्शी और समयबद्ध व्यवस्था में बदलकर नागरिकों और नगर निकायों के बीच समन्वय स्थापित करता है।",
+    aboutPillars: [
+      {
+        title: "नागरिक-केंद्रित सरल पहुंच",
+        desc: "अंग्रेजी, हिंदी व मराठी में सभी नागरिकों के लिए सुलभ व्यवस्था। फोटो और लोकेशन के साथ 60 सेकंड में शिकायत दर्ज करें।",
+        badge: "शून्य तकनीकी बाधा",
+      },
+      {
+        title: "एआई-संचालित वर्गीकरण व प्रेषण",
+        desc: "स्वचालित वर्गीकरण से विभागीय देरी समाप्त। एआई शिकायतों की श्रेणी पहचानता है, सही वार्ड जोड़ता है और डुप्लीकेट शिकायतों को रोकता है।",
+        badge: "त्वरित वार्ड प्रेषण",
+      },
+      {
+        title: "समयबद्ध समाधान (SLA) व जवाबदेही",
+        desc: "प्रत्येक शिकायत नागरिक चार्टर की समय-सीमा से बंधी है। देरी होने पर वरिष्ठ अधिकारियों को स्वचालित अलर्ट भेजा जाता है।",
+        badge: "सत्यापित फोटो समाधान",
+      },
+    ],
+
     // How It Works
+    howItWorksTag: "मानक संचालन प्रक्रिया (SOP)",
     howItWorksTitle: "गॉवफिक्स कैसे काम करता है?",
     howItWorksSubtitle: "प्रत्येक नागरिक शिकायत के समयबद्ध समाधान के लिए 5-चरणीय स्वचालित पारदर्शी व्यवस्था।",
+    phaseLabel: "चरण",
+    statusVerified: "सत्यापित",
+    slaGuaranteeTitle: "सख्त समयबद्ध समाधान गारंटी (नागरिक चार्टर)",
+    slaGuaranteeDesc: "प्रत्येक शिकायत स्वचालित एस्केलेशन अलर्ट के साथ नगरपालिका सेवा मानकों के तहत ट्रैक की जाती है।",
+    slaGuaranteeBadge: "मानक SLA: 24 से 72 घंटे",
     steps: [
       {
         number: "01",
@@ -302,8 +475,14 @@ export const translations = {
     ],
 
     // Transparency & Accountability
+    transparencyTag: "सार्वजनिक जवाबदेही मानक",
     transparencyTitle: "पारदर्शिता व जवाबदेही",
     transparencySubtitle: "नागरिकों को लाइव ट्रैकिंग, अधिकारी जवाबदेही और स्वतः शिकायत एस्केलेशन की सुविधा।",
+    socialAuditTitle: "नागरिक सामाजिक ऑडिट",
+    socialAuditDesc: "वार्ड समाधान आंकड़े और विभागीय प्रदर्शन रैंकिंग प्रत्येक 30 दिनों में सार्वजनिक रूप से उपलब्ध कराई जाती है।",
+    socialAuditBadge: "खुले सार्वजनिक डेटा के अनुरूप",
+    assignedOfficerLabel: "नियुक्त अधिकारी",
+    slaPerformanceLabel: "SLA प्रदर्शन",
     pillars: [
       {
         title: "रीयल-टाइम ट्रैकिंग",
@@ -364,12 +543,20 @@ export const translations = {
     ],
 
     // Citizen Info & FAQ
+    citizenInfoTag: "नागरिक संसाधन केंद्र",
     citizenInfoTitle: "नागरिक संदर्शिका एवं सहायता केंद्र",
     citizenInfoSubtitle: "शिकायत दर्ज करने, ट्रैक करने एवं नगर सेवाओं के बारे में महत्वपूर्ण दिशा-निर्देश।",
     noticeHeading: "नागरिकों हेतु महत्वपूर्ण सूचना",
     noticeBody: "कृपया शिकायत विवरण में आधार संख्या, पैन, बैंक खाता विवरण अथवा पासवर्ड जैसी संवेदनशील निजी जानकारी कदापि दर्ज न करें। केवल समस्या और उसके स्थान का विवरण दें।",
     quickLinksTitle: "त्वरित लिंक्स",
+    securityAssuranceText: "शिकायतें सार्वजनिक रिकॉर्ड अखंडता और डेटा सुरक्षा दिशानिर्देशों द्वारा सुरक्षित हैं।",
     faqTitle: "अक्सर पूछे जाने वाले प्रश्न (FAQ)",
+    quickLinkHowToTitle: "शिकायत कैसे दर्ज करें?",
+    quickLinkHowToDesc: "तस्वीरों के साथ शिकायत विवरण दर्ज करने का चरणबद्ध मार्गदर्शन",
+    quickLinkTrackTitle: "दर्ज शिकायत ट्रैक करें",
+    quickLinkTrackDesc: "वर्तमान स्थिति, नियुक्त अधिकारी और अनुमानित समाधान समय देखें",
+    quickLinkContactTitle: "सहायता एवं वार्ड हेल्पलाइन",
+    quickLinkContactDesc: "टोल-फ्री नंबर एवं क्षेत्रीय नगरपालिका संपर्क निर्देशिका",
     faqs: [
       {
         q: "शिकायत के समाधान में कितना समय लगता है?",
@@ -391,12 +578,77 @@ export const translations = {
 
     // Footer
     footerDesc: "गॉवफिक्स नागरिकों के लिए पारदर्शी, त्वरित और जवाबदेह स्थानीय शासन सुनिश्चित करने वाली एआई-संचालित नगरपालिका जन शिकायत निवारण पहल है।",
+    footerTollFree: "टोल-फ्री हेल्पलाइन: 1800-11-2026 (प्रातः 8 से सायं 8 बजे)",
+    footerHelpdeskEmail: "नागरिक हेल्पडेस्क: helpdesk@govfix.org",
+    footerHQAddress: "नगरपालिका मुख्यालय, सिविक सेंटर, वार्ड 01",
+    trackRegisteredComplaint: "→ दर्ज शिकायत की स्थिति जांचें",
     quickLinksHeader: "त्वरित लिंक",
     servicesHeader: "नागरिक सेवाएं",
     supportHeader: "सहायता एवं निवारण",
     accessibilityHeader: "सुलभता एवं नीतियां",
+    policyAccessibility: "सुलभता वक्तव्य",
+    policyPrivacy: "गोपनीयता नीति एवं डेटा सुरक्षा",
+    policyTerms: "सार्वजनिक सेवा की शर्तें",
+    policyCharter: "नागरिक चार्टर एवं SLA दिशानिर्देश",
+    policyHyperlink: "हाइपरलिंकिंग नीति",
+    disclaimerHeading: "विधिक अस्वीकरण एवं प्रोटोटाइप सूचना:",
     footerDisclaimer: "गॉवफिक्स एक हैकाथॉन प्रोटोटाइप है जिसे एआई-सहायता प्राप्त नगरपालिका शिकायत निवारण प्रणाली प्रदर्शित करने हेतु बनाया गया है। यह कोई आधिकारिक सरकारी पोर्टल नहीं है।",
     copyright: "© 2026 गॉवफिक्स पहल। पारदर्शी नगरपालिका शासन हेतु विकसित।",
+    footerContentManaged: "सामग्री प्रबंधन: नगरपालिका जन शिकायत प्रकोष्ठ",
+    footerWcag: "WCAG 2.1 AA अनुपालित",
+
+    // Modals: Register Complaint
+    modalRegisterTitle: "नागरिक जन शिकायत पंजीकरण",
+    modalNoticeText: "सूचना: कृपया आधार नंबर, बैंक खाता या ओटीपी जैसी संवेदनशील व्यक्तिगत जानकारी दर्ज न करें।",
+    fieldCategory: "नागरिक सेवा श्रेणी",
+    fieldWard: "नगरपालिका वार्ड / प्रभाग",
+    fieldLocation: "स्थान / निकटतम लैंडमार्क",
+    fieldLocationPlaceholder: "उदा. स्टेट बैंक के सामने, खंभा नंबर 42 के पास",
+    fieldDescription: "समस्या का विवरण",
+    fieldDescriptionPlaceholder: "समस्या का स्पष्ट विवरण दें (उदा. गड्ढे का आकार, जलापूर्ति में व्यवधान)",
+    fieldPhoto: "फोटो / वीडियो प्रमाण संलग्न करें (वैकल्पिक)",
+    fieldPhotoUploadText: "फोटो चुनने के लिए क्लिक करें या ड्रैग करें (अधिकतम 5MB)",
+    fieldMobile: "नागरिक मोबाइल नंबर",
+    fieldMobilePlaceholder: "एसएमएस ट्रैकिंग अपडेट हेतु 10-अंकीय मोबाइल नंबर",
+    btnCancel: "रद्द करें",
+    btnSubmitGrievance: "शिकायत प्रेषित करें",
+    successSubmittedTitle: "शिकायत सफलतापूर्वक दर्ज हो गई!",
+    successSubmittedDesc: "आपकी नागरिक शिकायत दर्ज कर ली गई है और वार्ड अभियंता आवंटन हेतु एआई इंजन को प्रेषित की गई है।",
+    successRefLabel: "संदर्भ संख्या (Reference ID):",
+    successSmsNotice: "आपके पंजीकृत मोबाइल नंबर पर पुष्टि का एसएमएस भेज दिया गया है।",
+    btnTrackNow: "अभी शिकायत ट्रैक करें",
+
+    // Modals: Citizen Login & OTP Simulation
+    modalLoginTitle: "नागरिक पोर्टल लॉगिन",
+    modalLoginDesc: "शिकायत इतिहास देखने, टिकट दोबारा खोलने व अधिकारी फीडबैक देने हेतु मोबाइल नंबर से लॉगिन करें।",
+    fieldLoginMobile: "मोबाइल नंबर",
+    fieldLoginMobilePlaceholder: "10-अंकीय मोबाइल नंबर दर्ज करें",
+    fieldCaptcha: "सुरक्षा कोड (CAPTCHA)",
+    fieldCaptchaPlaceholder: "कोड दर्ज करें",
+    btnSendOtp: "वन-टाइम पासवर्ड (OTP) भेजें",
+    labelEnterOtp: "पंजीकृत मोबाइल +91 पर भेजा गया 4-अंकीय OTP दर्ज करें",
+    otpHelperDemo: "ऊपर दिए गए एसएमएस अलर्ट में OTP देखें या ऑटो-फिल पर क्लिक करें",
+    btnVerifyOtp: "सत्यापित करें व पोर्टल में प्रवेश करें",
+    btnDemoLogin: "त्वरित डेमो लॉगिन (1-क्लिक पूर्वावलोकन)",
+    smsBannerTitle: "सिम्युलेटेड एसएमएस अलर्ट",
+    smsBannerBody: "आपका गॉवफिक्स सत्यापन OTP है:",
+    smsBannerValid: "10 मिनट के लिए वैध। यह OTP किसी से साझा न करें।",
+    btnAutoFillOtp: "OTP स्वतः भरें (Auto-fill)",
+    resendOtpIn: "पुनः OTP भेजें",
+    secondsUnit: "सेकंड में",
+    signedInAs: "लॉगिन उपयोगकर्ता:",
+    btnSignOut: "लॉगआउट",
+
+    // Modals: Helpdesk
+    modalHelpdeskTitle: "नगरपालिका हेल्पडेस्क व संपर्क विवरण",
+    helpdeskTollFreeBadge: "टोल-फ्री सार्वजनिक हेल्पलाइन",
+    helpdeskHoursTitle: "कार्य समय",
+    helpdeskHoursText: "सोमवार से शनिवार: प्रातः 08:00 से सायं 08:00 बजे (आपातकालीन सेवाएं 24/7 सक्रिय)",
+    helpdeskEmailTitle: "ईमेल सहायता",
+    helpdeskEmailText: "helpdesk@govfix.org / grievance-cell@govfix.org",
+    helpdeskHqTitle: "केंद्रीय नगरपालिका मुख्यालय",
+    helpdeskHqText: "नगरपालिका मुख्यालय मुख्य भवन, जन शिकायत प्रकोष्ठ, भूतल",
+    btnCloseHelpdesk: "हेल्पडेस्क बंद करें",
   },
 
   mr: {
@@ -406,6 +658,7 @@ export const translations = {
     contactSupport: "मदत कक्ष",
     accessibility: "सुलभता",
     selectLanguage: "भाषा निवडा",
+    textSizeNotice: "फॉन्ट आकार सेट केला:",
 
     // Main Navigation
     portalTitle: "गॉव्हफिक्स (GovFix)",
@@ -422,6 +675,7 @@ export const translations = {
 
     // Hero Section
     heroBadge: "डिजिटल नागरी तक्रार निवारण इंजिन",
+    heroBadgeVision: "डिजिटल इंडिया नागरी सेवा दृष्टी",
     heroHeading: "तुमचे शहर. तुमचा आवाज. आमची जबाबदारी.",
     heroSubtext: "नागरी समस्यांची तक्रार नोंदवा, तक्रारीचा मागोवा घ्या आणि केलेल्या प्रत्येक कारवाईची माहिती मिळवा. गॉव्हफिक्स महानगरपालिकेचे तक्रार निवारण अधिक सोपे, जलद आणि पारदर्शक बनवते.",
     btnHeroRegister: "तक्रार नोंदवा",
@@ -437,11 +691,28 @@ export const translations = {
     statActiveWards: "सक्रिय प्रभाग (वॉर्ड)",
     statResolvedToday: "एकूण निवारित तक्रारी",
     statLiveStatus: "थेट एआय निवारण यंत्रणा सुरू",
+    statActiveBadge: "24/7 सक्रिय",
+    unitHrs: "तास",
+    unitWards: "प्रभाग",
+    metricFasterSla: "+3.8% मुदतीपेक्षा जलद",
+    metricStandardSla: "मानक: 48-72 तास",
+    metricWardCoverage: "100% प्रभाग व्याप्ती",
+    metricCitizenVerified: "नागरिकांनी पडताळणी केलेले",
+    liveTriageHeader: "नवीनतम एआय विश्लेषण व प्रभाग वाटप",
+    liveTriageJustNow: "आत्ताच",
+    liveTriageSampleTitle: "मुख्य जलवाहिनी गळती - प्रभाग 14",
+    liveTriageStatusInProgress: "काम सुरू आहे",
+    liveTriageOfficerRemark: "स्टेशन रोड • इंजी. राजेश शर्मा घटनास्थळी रवाना",
 
     // Services Section
+    servicesTag: "नागरी सेवा निर्देशिका",
     servicesTitle: "तुमच्या नागरी समस्यांची तक्रार करा",
     servicesSubtitle: "संबंधित विभागाकडे थेट तक्रार नोंदवण्यासाठी खालील सेवा श्रेणी निवडा.",
     btnReportIssue: "तक्रार नोंदवा",
+    serviceSlaGeneral: "मुदत: 24-48 तास",
+    serviceSlaExtended: "मुदत: 48-72 तास",
+    otherCivicTitle: "इतर नागरी समस्या",
+    otherCivicDesc: "उद्यान देखभाल, मोकाट जनावरे, अतिक्रमण, उघड्यावर कचरा, झाडांची छाटणी किंवा इतर महानगरपालिका विषय.",
     services: [
       {
         id: "garbage",
@@ -470,9 +741,37 @@ export const translations = {
       },
     ],
 
+    // About Section
+    aboutTag: "नागरी ध्येय आणि उद्देश",
+    aboutTitle: "गॉव्हफिक्स व्यासपीठाबद्दल",
+    aboutDesc: "गॉव्हफिक्स नागरी तक्रार निवारणाला एक प्रगत, पारदर्शक आणि वेळेत पूर्ण होणाऱ्या व्यवस्थेत रूपांतरित करून नागरिक आणि महानगरपालिकेत विश्वास निर्माण करते.",
+    aboutPillars: [
+      {
+        title: "नागरिक-केंद्रित सुलभ वापर",
+        desc: "इंग्रजी, हिंदी आणि मराठीत सर्व नागरिकांसाठी सोपी यंत्रणा. फोटो आणि जीपीएस स्थानासह ६० सेकंदात तक्रार नोंदवा.",
+        badge: "कोणतीही तांत्रिक अडचण नाही",
+      },
+      {
+        title: "एआय-आधारित वर्गीकरण व प्रेषण",
+        desc: "स्वयंचलित वर्गीकरणामुळे प्रशासकीय विलंब टळतो. एआय तक्रारीची श्रेणी ठरवते, अचूक प्रभाग जोडते आणि एकाच समस्येच्या वारंवार तक्रारी ओळखते.",
+        badge: "त्वरित प्रभाग वाटप",
+      },
+      {
+        title: "निश्चित कालमर्यादा (SLA) व उत्तरदायित्व",
+        desc: "प्रत्येक तक्रार नागरी सनदेच्या कालमर्यादेत बांधलेली असते. कामात उशीर झाल्यास वरिष्ठ अधिकाऱ्यांना स्वयंचलित सूचना जाते.",
+        badge: "सत्यापित छायाचित्र निवारण",
+      },
+    ],
+
     // How It Works
+    howItWorksTag: "मानक कार्यपद्धती (SOP)",
     howItWorksTitle: "गॉव्हफिक्स कसे कार्य करते?",
     howItWorksSubtitle: "प्रत्येक नागरी तक्रारीचे वेळेत निवारण सुनिश्चित करणारी ५-टप्प्यांची पारदर्शक स्वयंचलित प्रणाली.",
+    phaseLabel: "टप्पा",
+    statusVerified: "पडताळणी पूर्ण",
+    slaGuaranteeTitle: "वेळेत निवारणाची हमी (नागरी सनद)",
+    slaGuaranteeDesc: "प्रत्येक तक्रार स्वयंचलित एस्केलेशन अलर्टसह मनपा सेवा मानकांनुसार ट्रॅक केली जाते.",
+    slaGuaranteeBadge: "मानक मुदत: 24 ते 72 तास",
     steps: [
       {
         number: "01",
@@ -502,8 +801,14 @@ export const translations = {
     ],
 
     // Transparency & Accountability
+    transparencyTag: "सार्वजनिक उत्तरदायित्व मानके",
     transparencyTitle: "पारदर्शकता आणि उत्तरदायित्व",
     transparencySubtitle: "नागरिकांना थेट ट्रॅकिंग, अधिकारी उत्तरदायित्व आणि स्वयंचलित तक्रार एस्केलेशनची सुविधा.",
+    socialAuditTitle: "नागरिक सामाजिक ऑडिट",
+    socialAuditDesc: "प्रभागनिहाय तक्रार निवारण आकडेवारी आणि विभाग कामगिरी दर ३० दिवसांनी सर्वांसाठी खुली केली जाते.",
+    socialAuditBadge: "ओपन पब्लिक डेटा मानकानुसार",
+    assignedOfficerLabel: "नियुक्त अधिकारी",
+    slaPerformanceLabel: "SLA कामगिरी",
     pillars: [
       {
         title: "थेट ट्रॅकिंग (Live Tracking)",
@@ -564,12 +869,20 @@ export const translations = {
     ],
 
     // Citizen Info & FAQ
+    citizenInfoTag: "नागरिक माहिती व मदत केंद्र",
     citizenInfoTitle: "नागरिक मार्गदर्शिका आणि मदत केंद्र",
     citizenInfoSubtitle: "तक्रार नोंदवणे, मागोवा घेणे आणि नागरी सुविधांविषयी महत्त्वाच्या सूचना.",
     noticeHeading: "नागरिकांसाठी महत्त्वाची सूचना",
     noticeBody: "कृपया तक्रार नोंदीमध्ये आधार क्रमांक, पॅन कार्ड, बँक खात्याचा तपशील किंवा पासवर्ड यांसारखी कोणतीही संवेदनशील वैयक्तिक माहिती टाकू नये. केवळ नागरी समस्या आणि ठिकाणाचा उल्लेख करावा.",
     quickLinksTitle: "महत्त्वाचे दुवे",
+    securityAssuranceText: "तक्रारी सार्वजनिक नोंदींची सुरक्षितता व डेटा गोपनीयता नियमांनुसार सुरक्षित आहेत.",
     faqTitle: "वारंवार विचारले जाणारे प्रश्न (FAQ)",
+    quickLinkHowToTitle: "तक्रार कशी नोंदवायची?",
+    quickLinkHowToDesc: "छायाचित्रांसह तक्रार नोंदवण्याचे सोपे टप्पे",
+    quickLinkTrackTitle: "नोंदवलेली तक्रार तपासा",
+    quickLinkTrackDesc: "सध्याची स्थिती, जबाबदार अधिकारी व अपेक्षित मुदत पहा",
+    quickLinkContactTitle: "मदत कक्ष व प्रभाग हेल्पलाइन",
+    quickLinkContactDesc: "टोल-फ्री क्रमांक व विभागीय महानगरपालिका संपर्क यादी",
     faqs: [
       {
         q: "तक्रार निवारणासाठी किती वेळ लागतो?",
@@ -591,11 +904,76 @@ export const translations = {
 
     // Footer
     footerDesc: "गॉव्हफिक्स हा नागरिकांसाठी पारदर्शक, गतिमान आणि उत्तरदायी स्थानिक स्वराज्य प्रशासन सुनिश्चित करणारा एआय-आधारित नागरी तक्रार निवारण उपक्रम आहे.",
+    footerTollFree: "टोल-फ्री हेल्पलाइन: 1800-11-2026 (सकाळी 8 ते रात्री 8)",
+    footerHelpdeskEmail: "नागरिक मदत कक्ष: helpdesk@govfix.org",
+    footerHQAddress: "महानगरपालिका मुख्य इमारत, नागरी सुविधा केंद्र, प्रभाग 01",
+    trackRegisteredComplaint: "→ नोंदवलेल्या तक्रारीची स्थिती तपासा",
     quickLinksHeader: "महत्त्वाचे दुवे",
     servicesHeader: "नागरी सेवा",
     supportHeader: "मदत व निवारण",
     accessibilityHeader: "सुलभता आणि धोरणे",
+    policyAccessibility: "सुलभता धोरण",
+    policyPrivacy: "गोपनीयता धोरण आणि डेटा सुरक्षा",
+    policyTerms: "सार्वजनिक सेवा अटी",
+    policyCharter: "नागरी सनद व SLA नियमावली",
+    policyHyperlink: "हायपरलिंकिंग धोरण",
+    disclaimerHeading: "कायदेशीर अस्वीकरण व प्रोटोटाइप सूचना:",
     footerDisclaimer: "गॉव्हफिक्स हा एक हॅकाथॉन प्रोटोटाइप आहे, जो एआय-आधारित नागरी तक्रार निवारण प्रणालीचे प्रात्यक्षिक दाखवण्यासाठी विकसित केला गेला आहे. हे अधिकृत सरकारी पोर्टल नाही.",
     copyright: "© २०२६ गॉव्हफिक्स उपक्रम. पारदर्शक महानगरपालिका प्रशासनासाठी विकसित.",
+    footerContentManaged: "माहिती व्यवस्थापन: मनपा जन तक्रार निवारण कक्ष",
+    footerWcag: "WCAG 2.1 AA मानकांनुसार",
+
+    // Modals: Register Complaint
+    modalRegisterTitle: "नागरिक जन तक्रार नोंदणी",
+    modalNoticeText: "सूचना: कृपया आधार क्रमांक, बँक खाते किंवा पासवर्ड यांसारखी संवेदनशील माहिती टाकू नका.",
+    fieldCategory: "नागरी सेवा श्रेणी",
+    fieldWard: "महानगरपालिका प्रभाग / विभाग",
+    fieldLocation: "ठिकाण / जवळची खूण (Landmark)",
+    fieldLocationPlaceholder: "उदा. स्टेट बँकेसमोर, खांब क्र. 42 जवळ",
+    fieldDescription: "समस्येचे स्पष्ट वर्णन",
+    fieldDescriptionPlaceholder: "समस्या सविस्तर लिहा (उदा. खड्ड्याचा आकार, पाणी तुंबण्याचे प्रमाण)",
+    fieldPhoto: "छायाचित्र / पुरावा जोडा (ऐच्छिक)",
+    fieldPhotoUploadText: "छायाचित्र निवडण्यासाठी येथे क्लिक करा (कमाल 5MB)",
+    fieldMobile: "नागरिक मोबाईल क्रमांक",
+    fieldMobilePlaceholder: "एसएमएस अपडेट्ससाठी 10-अंकी मोबाईल नंबर",
+    btnCancel: "रद्द करा",
+    btnSubmitGrievance: "तक्रार दाखल करा",
+    successSubmittedTitle: "तक्रार यशस्वीरित्या नोंदवली गेली!",
+    successSubmittedDesc: "आपली तक्रार नोंदवली असून प्रभाग अभियंता वाटपासाठी एआय प्रणालीकडे पाठवली आहे.",
+    successRefLabel: "तक्रार संदर्भ क्रमांक (Reference ID):",
+    successSmsNotice: "आपल्या नोंदणीकृत मोबाईलवर पुष्टीचा एसएमएस पाठवला आहे.",
+    btnTrackNow: "आत्ताच तक्रार तपासा",
+
+    // Modals: Citizen Login & OTP Simulation
+    modalLoginTitle: "नागरिक पोर्टल लॉगिन",
+    modalLoginDesc: "तक्रारींचा इतिहास पाहण्यासाठी, कामाचा फेरआढावा घेण्यासाठी मोबाईल क्रमांकाने लॉगिन करा.",
+    fieldLoginMobile: "मोबाईल क्रमांक",
+    fieldLoginMobilePlaceholder: "10-अंकी मोबाईल नंबर टाका",
+    fieldCaptcha: "सुरक्षा कोड (CAPTCHA)",
+    fieldCaptchaPlaceholder: "कोड टाका",
+    btnSendOtp: "वन-टाइम पासवर्ड (OTP) पाठवा",
+    labelEnterOtp: "+91 वर पाठवलेला 4-अंकी OTP टाका",
+    otpHelperDemo: "वरील सिम्युलेटेड एसएमएस सूचनेत OTP पहा किंवा ऑटो-फिल वर क्लिक करा",
+    btnVerifyOtp: "पडताळणी करा आणि पोर्टल उघडा",
+    btnDemoLogin: "झटपट डेमो लॉगिन (1-क्लिक पूर्वावलोकन)",
+    smsBannerTitle: "सिम्युलेटेड एसएमएस सूचना",
+    smsBannerBody: "आपला गॉव्हफिक्स पडताळणी OTP आहे:",
+    smsBannerValid: "10 मिनिटांसाठी वैध. हा OTP कोणाशीही शेअर करू नका.",
+    btnAutoFillOtp: "OTP ऑटो-फिल करा",
+    resendOtpIn: "पुन्हा OTP पाठवा",
+    secondsUnit: "सेकंदात",
+    signedInAs: "लॉगिन नागरिक:",
+    btnSignOut: "बाहेर पडा",
+
+    // Modals: Helpdesk
+    modalHelpdeskTitle: "महानगरपालिका मदत कक्ष व संपर्क",
+    helpdeskTollFreeBadge: "टोल-फ्री सार्वजनिक हेल्पलाइन",
+    helpdeskHoursTitle: "कार्यालयीन वेळा",
+    helpdeskHoursText: "सोमवार ते शनिवार: सकाळी 08:00 ते रात्री 08:00 (आपत्कालीन सेवा 24/7 सुरू)",
+    helpdeskEmailTitle: "ईमेल मदत कक्ष",
+    helpdeskEmailText: "helpdesk@govfix.org / grievance-cell@govfix.org",
+    helpdeskHqTitle: "मुख्य महानगरपालिका मुख्यालय",
+    helpdeskHqText: "महानगरपालिका मध्यवर्ती इमारत, जन तक्रार कक्ष, तळमजला",
+    btnCloseHelpdesk: "मदत कक्ष बंद करा",
   },
 };

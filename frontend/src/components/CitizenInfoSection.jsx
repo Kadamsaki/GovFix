@@ -4,8 +4,6 @@ import {
   HelpCircle,
   ChevronDown,
   BookOpen,
-  Search,
-  PhoneCall,
   FileText,
   ShieldCheck,
 } from 'lucide-react';
@@ -29,7 +27,7 @@ export default function CitizenInfoSection({
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 text-gov-navy text-xs font-bold uppercase tracking-wider mb-3">
             <BookOpen size={14} className="text-gov-blue" />
-            <span>Citizen Resource Center</span>
+            <span>{t.citizenInfoTag}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gov-navy tracking-tight">
             {t.citizenInfoTitle}
@@ -77,10 +75,10 @@ export default function CitizenInfoSection({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gov-navy group-hover:text-gov-blue transition-colors">
-                    How to Register a Complaint
+                    {t.quickLinkHowToTitle}
                   </h4>
                   <p className="text-xs text-slate-500">
-                    Step-by-step guidance on submitting grievance details with photos
+                    {t.quickLinkHowToDesc}
                   </p>
                 </div>
               </div>
@@ -98,10 +96,10 @@ export default function CitizenInfoSection({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gov-navy group-hover:text-gov-teal transition-colors">
-                    Track Existing Complaint
+                    {t.quickLinkTrackTitle}
                   </h4>
                   <p className="text-xs text-slate-500">
-                    Check current stage, assigned officer, and estimated resolution SLA
+                    {t.quickLinkTrackDesc}
                   </p>
                 </div>
               </div>
@@ -122,10 +120,10 @@ export default function CitizenInfoSection({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gov-navy group-hover:text-gov-blue transition-colors">
-                    Contact Support &amp; Ward Helpline
+                    {t.quickLinkContactTitle}
                   </h4>
                   <p className="text-xs text-slate-500">
-                    Toll-free numbers and zonal municipal contact directory
+                    {t.quickLinkContactDesc}
                   </p>
                 </div>
               </div>
@@ -135,7 +133,7 @@ export default function CitizenInfoSection({
             {/* Security Assurance Card */}
             <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600 flex items-center gap-3">
               <ShieldCheck size={20} className="text-emerald-700 shrink-0" />
-              <span>Complaints are safeguarded with public record tamper-evidence and data protection guidelines.</span>
+              <span>{t.securityAssuranceText}</span>
             </div>
           </div>
 

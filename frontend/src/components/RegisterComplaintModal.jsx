@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { X, Upload, CheckCircle2, Shield, AlertTriangle, MapPin, Camera } from 'lucide-react';
+import { X, CheckCircle2, Shield, AlertTriangle, MapPin, Camera } from 'lucide-react';
 
 export default function RegisterComplaintModal({
   isOpen,
   onClose,
   initialCategory,
   onComplaintCreated,
+  t,
 }) {
-  const [category, setCategory] = useState(initialCategory || 'Roads & Potholes');
+  const [category, setCategory] = useState(initialCategory || t.services[2]?.title || 'Roads & Potholes');
   const [ward, setWard] = useState('Ward No. 14 (Shivaji Chowk / Station Road)');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
@@ -40,7 +41,7 @@ export default function RegisterComplaintModal({
           <div className="flex items-center gap-2.5">
             <Shield size={20} className="text-gov-blue" />
             <h3 className="text-base font-bold">
-              Citizen Grievance Registration
+              {t.modalRegisterTitle}
             </h3>
           </div>
           <button
@@ -59,18 +60,18 @@ export default function RegisterComplaintModal({
                 <CheckCircle2 size={36} />
               </div>
               <h4 className="text-xl font-bold text-gov-navy">
-                Grievance Submitted Successfully!
+                {t.successSubmittedTitle}
               </h4>
               <p className="text-xs text-slate-600 max-w-md mx-auto">
-                Your civic complaint has been registered and forwarded to the AI triage engine for ward engineer assignment.
+                {t.successSubmittedDesc}
               </p>
 
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 inline-block font-mono text-sm font-bold text-gov-navy">
-                Reference ID: <span className="text-gov-blue">{submittedId}</span>
+                {t.successRefLabel} <span className="text-gov-blue">{submittedId}</span>
               </div>
 
               <div className="text-xs text-slate-500">
-                An SMS confirmation has been sent to your registered mobile number.
+                {t.successSmsNotice}
               </div>
 
               <div className="pt-4">
@@ -78,7 +79,7 @@ export default function RegisterComplaintModal({
                   onClick={handleFinish}
                   className="px-6 py-2.5 bg-gov-blue hover:bg-gov-blueHover text-white rounded-lg text-sm font-bold shadow-sm transition-all"
                 >
-                  Track This Complaint Now
+                  {t.btnTrackNow}
                 </button>
               </div>
             </div>
@@ -88,33 +89,33 @@ export default function RegisterComplaintModal({
               {/* Privacy Notice Banner */}
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 flex items-start gap-2">
                 <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-600" />
-                <span>Notice: Do NOT enter sensitive personal information such as Aadhaar or bank account numbers.</span>
+                <span>{t.modalNoticeText}</span>
               </div>
 
               {/* Category */}
               <div>
                 <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Civic Category <span className="text-red-500">*</span>
+                  {t.fieldCategory} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full text-xs sm:text-sm p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue bg-white"
+                  className="w-full text-xs sm:text-sm p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue bg-white font-medium"
                   required
                 >
-                  <option value="Garbage & Sanitation">Garbage & Sanitation</option>
-                  <option value="Water Supply">Water Supply</option>
-                  <option value="Roads & Potholes">Roads & Potholes</option>
-                  <option value="Streetlights">Streetlights</option>
-                  <option value="Drainage & Sewage">Drainage & Sewage</option>
-                  <option value="Other Civic Matters">Other Civic Matters</option>
+                  {t.services.map((s) => (
+                    <option key={s.id} value={s.title}>
+                      {s.title}
+                    </option>
+                  ))}
+                  <option value={t.otherCivicTitle}>{t.otherCivicTitle}</option>
                 </select>
               </div>
 
               {/* Ward Selector */}
               <div>
                 <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Municipal Ward / Zone <span className="text-red-500">*</span>
+                  {t.fieldWard} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={ward}
@@ -140,14 +141,14 @@ export default function RegisterComplaintModal({
               {/* Exact Location Landmark */}
               <div>
                 <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Location / Nearest Landmark <span className="text-red-500">*</span>
+                  {t.fieldLocation} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. Opposite State Bank, Near Pillar No. 42"
+                    placeholder={t.fieldLocationPlaceholder}
                     className="w-full text-xs sm:text-sm p-2.5 pl-8 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue"
                     required
                   />
@@ -158,13 +159,13 @@ export default function RegisterComplaintModal({
               {/* Problem Description */}
               <div>
                 <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Problem Description <span className="text-red-500">*</span>
+                  {t.fieldDescription} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the issue clearly (e.g. size of pothole, frequency of water disruption)"
+                  placeholder={t.fieldDescriptionPlaceholder}
                   className="w-full text-xs sm:text-sm p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue"
                   required
                 />
@@ -173,24 +174,24 @@ export default function RegisterComplaintModal({
               {/* Photo Upload Mockup */}
               <div>
                 <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Attach Photo / Video Proof (Optional)
+                  {t.fieldPhoto}
                 </label>
                 <div className="border-2 border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center gap-2 text-xs text-slate-500">
                   <Camera size={16} className="text-gov-blue" />
-                  <span>Click to select image or drag &amp; drop (Max 5MB)</span>
+                  <span>{t.fieldPhotoUploadText}</span>
                 </div>
               </div>
 
               {/* Citizen Contact */}
               <div>
                 <label className="block text-xs font-bold text-gov-navy mb-1">
-                  Citizen Mobile Number <span className="text-red-500">*</span>
+                  {t.fieldMobile} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="10-digit mobile number for SMS tracking updates"
+                  placeholder={t.fieldMobilePlaceholder}
                   maxLength={10}
                   className="w-full text-xs sm:text-sm p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue font-mono"
                   required
@@ -204,13 +205,13 @@ export default function RegisterComplaintModal({
                   onClick={onClose}
                   className="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100"
                 >
-                  Cancel
+                  {t.btnCancel}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold text-white bg-gov-blue hover:bg-gov-blueHover shadow-sm"
                 >
-                  Submit Grievance
+                  {t.btnSubmitGrievance}
                 </button>
               </div>
 
