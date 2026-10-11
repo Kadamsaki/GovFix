@@ -7,20 +7,26 @@ from app.models.complaint import Complaint
 from app.models.audit import AuditLog
 
 
+from sqlalchemy import inspect
+
 def run_migrations():
     """Ensures database schema is up-to-date with SLA, attachment, and assignment columns."""
-    with engine.connect() as conn:
-        result = conn.execute(text("PRAGMA table_info(complaints)"))
-        existing_cols = [row[1] for row in result.fetchall()]
-        
-        if "assigned_at" not in existing_cols:
-            conn.execute(text("ALTER TABLE complaints ADD COLUMN assigned_at DATETIME"))
-        if "resolution_deadline" not in existing_cols:
-            conn.execute(text("ALTER TABLE complaints ADD COLUMN resolution_deadline DATETIME"))
-        if "attachment_url" not in existing_cols:
-            conn.execute(text("ALTER TABLE complaints ADD COLUMN attachment_url TEXT"))
-        
-        conn.commit()
+    try:
+        inspector = inspect(engine)
+        if "complaints" in inspector.get_table_names():
+            existing_cols = [c["name"] for c in inspector.get_columns("complaints")]
+            is_sqlite_db = str(engine.url).startswith("sqlite")
+            col_type = "DATETIME" if is_sqlite_db else "TIMESTAMP"
+            with engine.connect() as conn:
+                if "assigned_at" not in existing_cols:
+                    conn.execute(text(f"ALTER TABLE complaints ADD COLUMN assigned_at {col_type}"))
+                if "resolution_deadline" not in existing_cols:
+                    conn.execute(text(f"ALTER TABLE complaints ADD COLUMN resolution_deadline {col_type}"))
+                if "attachment_url" not in existing_cols:
+                    conn.execute(text("ALTER TABLE complaints ADD COLUMN attachment_url TEXT"))
+                conn.commit()
+    except Exception as e:
+        print(f"Notice during migration check: {e}")
 
 
 def init_db():

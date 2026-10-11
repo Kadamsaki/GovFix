@@ -15,10 +15,12 @@ class Settings(BaseSettings):
     PORT: int = 8000
     API_V1_STR: str = "/api/v1"
 
-    ALLOWED_CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
+    ALLOWED_CORS_ORIGINS: str = "*"
 
     @property
     def cors_origins(self) -> List[str]:
+        if not self.ALLOWED_CORS_ORIGINS or self.ALLOWED_CORS_ORIGINS.strip() == "*":
+            return ["*"]
         return [origin.strip() for origin in self.ALLOWED_CORS_ORIGINS.split(",") if origin.strip()]
 
     model_config = SettingsConfigDict(
