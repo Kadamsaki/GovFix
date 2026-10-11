@@ -43,20 +43,39 @@ def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/officers", response_model=List[UserResponse], summary="List Officers for Assignment")
+from app.models.complaint import Complaint
+
+@router.get("/officers", response_model=List[UserResponse], summary="List Officers for Assignment with Workload")
 def get_officers(
     department: Optional[str] = None,
     current_user: User = Depends(require_roles(["supervisor", "admin"])),
     db: Session = Depends(get_db),
 ):
     """
-    Returns municipal officers available for grievance assignment.
-    Accessible only to Supervisors and Admins.
+    Returns municipal officers available for grievance assignment with active workload count.
+    Accessible to Supervisors and Admins.
     """
     q = db.query(User).filter(User.role == "officer")
     if department:
-        q = q.filter(User.department == department)
-    return q.all()
+        dept_clean = department.replace(" Department", "").strip()
+        q = q.filter(User.department.ilike(f"%{dept_clean}%"))
+    
+    officers = q.all()
+    results = []
+    for off in officers:
+        active_count = (
+            db.query(Complaint)
+            .filter(
+                Complaint.assigned_officer_id == off.id,
+                Complaint.status.in_(["ASSIGNED", "IN_PROGRESS"]),
+            )
+            .count()
+        )
+        off_resp = UserResponse.model_validate(off)
+        off_resp.active_complaints_count = active_count
+        results.append(off_resp)
+        
+    return results
 
 
 @router.get("/users", response_model=List[UserResponse], summary="List All Users (Admin)")

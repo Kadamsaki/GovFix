@@ -13,6 +13,7 @@ class UserResponse(BaseModel):
     department: Optional[str] = None
     ward: Optional[str] = None
     designation: Optional[str] = None
+    active_complaints_count: Optional[int] = 0
     created_at: Optional[datetime] = None
 
     class Config:
@@ -33,6 +34,7 @@ class ComplaintCreate(BaseModel):
     location: str = Field(..., description="Precise street or area location")
     landmark: Optional[str] = Field(None, description="Prominent landmark nearby")
     priority: Optional[str] = Field("Medium", description="Low, Medium, High, or Urgent")
+    attachment_url: Optional[str] = Field(None, description="Citizen photo/document evidence URL")
 
 
 class ComplaintResponse(BaseModel):
@@ -52,6 +54,13 @@ class ComplaintResponse(BaseModel):
     assigned_officer_id: Optional[str] = None
     assigned_officer_name: Optional[str] = None
     assigned_department: Optional[str] = None
+    assigned_at: Optional[datetime] = None
+    resolution_deadline: Optional[datetime] = None
+    attachment_url: Optional[str] = None
+    is_overdue: Optional[bool] = False
+    time_remaining_seconds: Optional[int] = 0
+    time_remaining_text: Optional[str] = None
+    sla_hours: Optional[int] = 48
     resolution_remarks: Optional[str] = None
     resolution_proof_url: Optional[str] = None
     rejection_reason: Optional[str] = None
@@ -82,6 +91,8 @@ class TransitionRequest(BaseModel):
     resolution_proof_url: Optional[str] = Field(None, description="Mandatory proof link or description when resolving")
     rejection_reason: Optional[str] = Field(None, description="Mandatory reason when supervisor rejects closure")
     remarks: Optional[str] = Field(None, description="Additional administrative remarks")
+    new_deadline: Optional[datetime] = Field(None, description="Updated SLA deadline if modified by authorized supervisor/admin")
+    sla_reason: Optional[str] = Field(None, description="Reason for SLA deadline adjustment")
 
 
 class TransitionResult(BaseModel):
