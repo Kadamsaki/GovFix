@@ -162,20 +162,22 @@ export default function WorkflowTracker({
       </div>
 
       {/* Authorized context info: Department & Assigned officer */}
-      {(assignedDepartment || assignedOfficer) && (
+      {(assignedDepartment || assignedOfficer || currentKey === 'SUBMITTED' || currentKey === 'UNDER_REVIEW') && (
         <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 bg-slate-50/70 p-2.5 rounded-lg border border-slate-200">
-          {assignedDepartment && (
-            <div>
-              <span className="text-slate-400">Department:</span>{' '}
-              <strong className="text-gov-navy">{assignedDepartment}</strong>
-            </div>
-          )}
-          {assignedOfficer && (userRole !== 'citizen' || currentKey !== 'SUBMITTED') && (
-            <div>
-              <span className="text-slate-400">Field Officer:</span>{' '}
+          <div>
+            <span className="text-slate-400">Department:</span>{' '}
+            <strong className="text-gov-navy">{assignedDepartment || 'Municipal Redressal Cell'}</strong>
+          </div>
+          <div>
+            <span className="text-slate-400">Field Officer:</span>{' '}
+            {assignedOfficer ? (
               <strong className="text-gov-navy">{assignedOfficer}</strong>
-            </div>
-          )}
+            ) : (
+              <span className="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 text-[11px]">
+                Awaiting Officer Assignment
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>

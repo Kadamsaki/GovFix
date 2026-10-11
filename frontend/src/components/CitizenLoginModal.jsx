@@ -209,6 +209,32 @@ export default function CitizenLoginModal({ isOpen, onClose, onLoginSuccess, t }
                 />
                 <User size={15} className="absolute left-3 top-3 text-slate-400" />
               </div>
+
+              {/* Quick Officer Switcher for testing all 5 departments */}
+              {selectedRoleTab === 'officer' && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {[
+                    { id: 'officer-1', label: '🚰 Water (Amit)' },
+                    { id: 'officer-2', label: '🛣️ Roads (Rajesh)' },
+                    { id: 'officer-3', label: '💡 Electrical (Sandeep)' },
+                    { id: 'officer-4', label: '🗑️ Sanitation (Ramesh)' },
+                    { id: 'officer-5', label: '🌊 Drainage (Ganesh)' },
+                  ].map((off) => (
+                    <button
+                      key={off.id}
+                      type="button"
+                      onClick={() => setIdentifier(off.id)}
+                      className={`text-[10px] px-2 py-0.5 rounded border transition-colors cursor-pointer ${
+                        identifier === off.id
+                          ? 'bg-amber-100 text-amber-900 border-amber-300 font-bold'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {off.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>

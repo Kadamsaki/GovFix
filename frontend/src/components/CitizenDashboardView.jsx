@@ -189,15 +189,6 @@ export default function CitizenDashboardView({
               </div>
             </div>
 
-            {/* Back to Public Website */}
-            <button
-              onClick={onBackToPortal}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer border border-slate-700 font-semibold"
-            >
-              <ArrowLeft size={14} />
-              <span>Public Homepage</span>
-            </button>
-
             {/* Sign Out */}
             <button
               onClick={onSignOut}
@@ -417,6 +408,16 @@ export default function CitizenDashboardView({
                         </p>
                       </div>
 
+                      {item.assigned_officer_name && (
+                        <div className="mt-2 text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded flex items-center justify-between">
+                          <span className="text-emerald-700 font-medium">Assigned Officer:</span>
+                          <span className="font-bold flex items-center gap-1">
+                            <User size={11} className="text-emerald-700" />
+                            <span>{item.assigned_officer_name}</span>
+                          </span>
+                        </div>
+                      )}
+
                       <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
                         <span className="text-slate-500 font-medium">
                           Ward: {item.ward?.split('(')[0] || item.ward}
@@ -442,6 +443,7 @@ export default function CitizenDashboardView({
                 <WorkflowTracker
                   currentStatus={activeComplaint.status}
                   audits={audits}
+                  assignedDepartment={activeComplaint.assigned_department}
                   assignedOfficer={activeComplaint.assigned_officer_name}
                 />
 
@@ -449,10 +451,25 @@ export default function CitizenDashboardView({
                 <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <div>
-                      <span className="text-[10px] font-mono text-gov-blue bg-blue-50 px-2 py-0.5 rounded font-bold uppercase">
-                        {activeComplaint.id}
-                      </span>
-                      <h2 className="text-base font-extrabold text-gov-navy mt-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-mono text-gov-blue bg-blue-50 px-2 py-0.5 rounded font-bold uppercase">
+                          {activeComplaint.id}
+                        </span>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                            activeComplaint.priority === 'Urgent'
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : activeComplaint.priority === 'High'
+                              ? 'bg-amber-100 text-amber-800 border-amber-300'
+                              : activeComplaint.priority === 'Low'
+                              ? 'bg-slate-100 text-slate-700 border-slate-300'
+                              : 'bg-blue-100 text-blue-800 border-blue-300'
+                          }`}
+                        >
+                          {activeComplaint.priority} Priority
+                        </span>
+                      </div>
+                      <h2 className="text-base font-extrabold text-gov-navy">
                         {activeComplaint.title}
                       </h2>
                     </div>
@@ -468,24 +485,78 @@ export default function CitizenDashboardView({
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200">
+                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200 font-medium">
                     {activeComplaint.description}
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Category & Location</span>
-                      <strong className="text-slate-800 block mt-0.5">
-                        {activeComplaint.category} • {activeComplaint.location}
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Responsible Municipal Dept</span>
+                      <strong className="text-gov-navy block mt-0.5 font-bold">
+                        {activeComplaint.assigned_department || activeComplaint.category}
                       </strong>
+                      <span className="text-[10px] text-slate-500 block mt-0.5">{activeComplaint.location}</span>
                     </div>
                     <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Assigned Officer</span>
-                      <strong className="text-slate-800 block mt-0.5">
-                        {activeComplaint.assigned_officer_name || 'Under Review / Awaiting Assignment'}
-                      </strong>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Designated Field Officer</span>
+                      {activeComplaint.assigned_officer_name ? (
+                        <div>
+                          <strong className="text-slate-800 block mt-0.5">{activeComplaint.assigned_officer_name}</strong>
+                          <span className="text-[10px] text-emerald-700 font-medium block">✓ Auto-assigned based on problem type</span>
+                        </div>
+                      ) : (
+                        <span className="inline-block mt-0.5 font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px]">
+                          Awaiting Officer Assignment
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {/* Citizen SLA Timeline Bar */}
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Target Resolution SLA</span>
+                      <strong className="font-mono text-slate-800 text-[11px]">
+                        {activeComplaint.resolution_deadline ? new Date(activeComplaint.resolution_deadline).toLocaleString() : 'Standard Redressal Timeline'}
+                      </strong>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">SLA Status</span>
+                      <span className={`font-mono font-bold text-[11px] ${activeComplaint.is_overdue ? 'text-rose-600' : 'text-emerald-700'}`}>
+                        {activeComplaint.time_remaining_text || 'In Progress'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Supporting Photo Evidence if submitted */}
+                  {activeComplaint.attachment_url && (
+                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                      <span className="font-bold text-gov-navy flex items-center gap-1.5">
+                        <FileText size={14} className="text-gov-blue" />
+                        <span>Registered Photographic Evidence:</span>
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={activeComplaint.attachment_url}
+                          alt="Citizen Proof"
+                          className="w-20 h-20 object-cover rounded-lg border border-slate-300 shadow-sm"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <div className="space-y-1">
+                          <p className="text-[11px] text-slate-500">Your uploaded evidence has been dispatched to the concerned municipal department.</p>
+                          <a
+                            href={activeComplaint.attachment_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-gov-blue hover:underline font-bold"
+                          >
+                            <span>Inspect Full Size Image</span>
+                            <ExternalLink size={11} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Resolution Proof Card if Resolved or Closed */}
                   {activeComplaint.resolution_remarks && (

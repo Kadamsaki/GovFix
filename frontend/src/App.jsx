@@ -45,8 +45,6 @@ export default function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isHelpdeskOpen, setIsHelpdeskOpen] = useState(false);
 
-  // Tracked complaint ID for timeline demonstration
-  const [trackedComplaintId, setTrackedComplaintId] = useState('GFX-2026-3109');
 
   // Focus complaint ID in dashboard and refresh trigger
   const [focusedComplaintId, setFocusedComplaintId] = useState(null);
@@ -102,35 +100,9 @@ export default function App() {
           setCurrentView('dashboard');
         })
         .catch(() => {
-          handleTrackComplaint(newId);
+          setCurrentView('dashboard');
         });
     }
-  };
-
-  const handleTrackComplaint = (id) => {
-    // If citizen is logged in, track directly inside their Citizen Dashboard
-    if (currentUser && currentUser.role === 'citizen') {
-      setFocusedComplaintId(id);
-      setDashboardRefreshKey((prev) => prev + 1);
-      setCurrentView('dashboard');
-      return;
-    }
-
-    // Unauthenticated public portal tracking
-    setTrackedComplaintId(id);
-    if (currentView === 'dashboard') {
-      setCurrentView('portal');
-    }
-    setTimeout(() => {
-      const timelineEl = document.getElementById('sample-timeline');
-      if (timelineEl) {
-        timelineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        timelineEl.classList.add('ring-4', 'ring-gov-blue/50');
-        setTimeout(() => {
-          timelineEl.classList.remove('ring-4', 'ring-gov-blue/50');
-        }, 2500);
-      }
-    }, 100);
   };
 
   const handleLoginSuccess = (user) => {
@@ -226,7 +198,6 @@ export default function App() {
             <HeroSection
               t={t}
               onOpenRegister={handleOpenRegister}
-              onTrackComplaint={handleTrackComplaint}
             />
 
             {/* 2. Important Citizen Services */}
@@ -242,16 +213,12 @@ export default function App() {
             <HowItWorksSection t={t} />
 
             {/* 5. Transparency & Accountability */}
-            <TransparencySection
-              t={t}
-              trackedComplaintId={trackedComplaintId}
-            />
+            <TransparencySection t={t} />
 
             {/* 6. Citizen Guide, Notices & FAQ */}
             <CitizenInfoSection
               t={t}
               onOpenRegister={handleOpenRegister}
-              onTrackComplaint={handleTrackComplaint}
             />
           </main>
 
@@ -259,7 +226,6 @@ export default function App() {
           <Footer
             t={t}
             onOpenRegister={handleOpenRegister}
-            onTrackComplaint={handleTrackComplaint}
           />
         </>
       )}

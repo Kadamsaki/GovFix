@@ -121,13 +121,7 @@ export default function AdminDashboardView({
               <span className="font-bold text-white block leading-tight">{adminUser.name}</span>
               <span className="text-[10px] text-slate-400 font-mono">Role: ADMIN (Full Access)</span>
             </div>
-            <button
-              onClick={onBackToPortal}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer border border-slate-700 font-semibold"
-            >
-              <ArrowLeft size={14} />
-              <span>Public Portal</span>
-            </button>
+
             <button
               onClick={onSignOut}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-900/60 hover:bg-red-800 text-red-200 transition-colors cursor-pointer border border-red-800 font-semibold"

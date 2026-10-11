@@ -134,13 +134,81 @@ export default function OfficerDashboardView({
 
 
 
+  const filterTabs = [
+    { key: 'all', label: 'All Assigned' },
+    { key: 'urgent', label: '⚡ Urgent' },
+    { key: 'high', label: '🔥 High' },
+    { key: 'medium', label: 'Medium' },
+    { key: 'low', label: 'Low' },
+    { key: 'due_soon', label: '⏳ Due Soon' },
+    { key: 'overdue', label: '⚠️ Overdue' },
+    { key: 'in_progress', label: 'In Progress' },
+    { key: 'resolved', label: 'Resolved' },
+  ];
+
   const filtered = complaints.filter((c) => {
-    const matchesFilter = filter === 'all' ? true : c.status.toLowerCase() === filter;
+    let matchesFilter = true;
+    switch (filter) {
+      case 'urgent':
+        matchesFilter = (c.priority || '').toLowerCase() === 'urgent';
+        break;
+      case 'high':
+        matchesFilter = (c.priority || '').toLowerCase() === 'high';
+        break;
+      case 'medium':
+        matchesFilter = (c.priority || '').toLowerCase() === 'medium';
+        break;
+      case 'low':
+        matchesFilter = (c.priority || '').toLowerCase() === 'low';
+        break;
+      case 'due_soon':
+        matchesFilter =
+          !c.is_overdue &&
+          c.status !== 'RESOLVED' &&
+          c.status !== 'CLOSED' &&
+          c.time_remaining_seconds > 0 &&
+          c.time_remaining_seconds <= 6 * 3600;
+        break;
+      case 'overdue':
+        matchesFilter = Boolean(c.is_overdue) && c.status !== 'RESOLVED' && c.status !== 'CLOSED';
+        break;
+      case 'in_progress':
+        matchesFilter = c.status === 'IN_PROGRESS';
+        break;
+      case 'resolved':
+        matchesFilter = c.status === 'RESOLVED';
+        break;
+      case 'assigned':
+        matchesFilter = c.status === 'ASSIGNED';
+        break;
+      case 'all':
+      default:
+        matchesFilter = true;
+        break;
+    }
+
     const matchesSearch =
       c.id.toLowerCase().includes(search.toLowerCase()) ||
       c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.location.toLowerCase().includes(search.toLowerCase());
+      c.location.toLowerCase().includes(search.toLowerCase()) ||
+      (c.description && c.description.toLowerCase().includes(search.toLowerCase()));
+
     return matchesFilter && matchesSearch;
+  });
+
+  // Sort urgent and overdue complaints prominently
+  const sortedComplaints = [...filtered].sort((a, b) => {
+    const aOverdue = a.is_overdue && a.status !== 'RESOLVED' && a.status !== 'CLOSED';
+    const bOverdue = b.is_overdue && b.status !== 'RESOLVED' && b.status !== 'CLOSED';
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+
+    const priorityRanks = { Urgent: 4, High: 3, Medium: 2, Low: 1 };
+    const aP = priorityRanks[a.priority] || 0;
+    const bP = priorityRanks[b.priority] || 0;
+    if (aP !== bP) return bP - aP;
+
+    return new Date(b.created_at) - new Date(a.created_at);
   });
 
   return (
@@ -163,7 +231,7 @@ export default function OfficerDashboardView({
                 </span>
               </div>
               <p className="text-[11px] text-slate-300">
-                Department: {officerUser.department || 'Water Supply'} • {officerUser.designation}
+                Department: {officerUser.department || 'Municipal Grievances'} • {officerUser.designation}
               </p>
             </div>
           </div>
@@ -173,13 +241,7 @@ export default function OfficerDashboardView({
               <span className="font-bold text-white block leading-tight">{officerUser.name}</span>
               <span className="text-[10px] text-slate-400 font-mono">ID: {officerUser.id}</span>
             </div>
-            <button
-              onClick={onBackToPortal}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer border border-slate-700 font-semibold"
-            >
-              <ArrowLeft size={14} />
-              <span>Public Portal</span>
-            </button>
+
             <button
               onClick={onSignOut}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-900/60 hover:bg-red-800 text-red-200 transition-colors cursor-pointer border border-red-800 font-semibold"
@@ -222,23 +284,23 @@ export default function OfficerDashboardView({
         {/* Top Summary Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <span className="text-[11px] text-slate-500 block">Assigned Work Orders</span>
+            <span className="text-[11px] text-slate-500 block">Total Assigned Orders</span>
             <span className="text-xl font-bold text-gov-navy">{complaints.length}</span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <span className="text-[11px] text-blue-600 font-bold block">Awaiting Acceptance</span>
-            <span className="text-xl font-bold text-gov-blue">
-              {complaints.filter((c) => c.status === 'ASSIGNED').length}
+            <span className="text-[11px] text-rose-600 font-bold block">Overdue SLA Breaches</span>
+            <span className="text-xl font-bold text-rose-600">
+              {complaints.filter((c) => c.is_overdue && c.status !== 'RESOLVED' && c.status !== 'CLOSED').length}
             </span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <span className="text-[11px] text-amber-600 font-bold block">Currently In Progress</span>
+            <span className="text-[11px] text-amber-600 font-bold block">Active In Progress</span>
             <span className="text-xl font-bold text-amber-600">
               {complaints.filter((c) => c.status === 'IN_PROGRESS').length}
             </span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-            <span className="text-[11px] text-emerald-600 font-bold block">Resolved (Awaiting Approval)</span>
+            <span className="text-[11px] text-emerald-600 font-bold block">Resolved (Pending Approval)</span>
             <span className="text-xl font-bold text-emerald-600">
               {complaints.filter((c) => c.status === 'RESOLVED').length}
             </span>
@@ -257,7 +319,7 @@ export default function OfficerDashboardView({
                   <span>My Assigned Tasks</span>
                 </h3>
                 <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-bold">
-                  {filtered.length} items
+                  {sortedComplaints.length} items
                 </span>
               </div>
 
@@ -266,7 +328,7 @@ export default function OfficerDashboardView({
                 <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Filter by ID, title, or ward..."
+                  placeholder="Filter by ID, title, keyword, or ward..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full text-xs p-2 pl-9 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue"
@@ -274,17 +336,17 @@ export default function OfficerDashboardView({
               </div>
 
               <div className="flex gap-1 overflow-x-auto pb-1 text-xs">
-                {['all', 'assigned', 'in_progress', 'resolved'].map((tab) => (
+                {filterTabs.map((tab) => (
                   <button
-                    key={tab}
-                    onClick={() => setFilter(tab)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors uppercase whitespace-nowrap cursor-pointer ${
-                      filter === tab
-                        ? 'bg-gov-navy text-white'
+                    key={tab.key}
+                    onClick={() => setFilter(tab.key)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors whitespace-nowrap cursor-pointer ${
+                      filter === tab.key
+                        ? 'bg-gov-navy text-white shadow-sm'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {tab.replace('_', ' ')}
+                    {tab.label}
                   </button>
                 ))}
               </div>
@@ -294,23 +356,43 @@ export default function OfficerDashboardView({
             <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
               {loading ? (
                 <div className="text-center py-10 text-slate-400 text-xs">Loading work orders...</div>
-              ) : filtered.length === 0 ? (
+              ) : sortedComplaints.length === 0 ? (
                 <div className="text-center py-10 bg-white rounded-xl border border-slate-200 p-4 text-xs text-slate-500">
                   No work orders found for selected criteria.
                 </div>
               ) : (
-                filtered.map((item) => (
+                sortedComplaints.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => setSelectedId(item.id)}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer text-xs ${
                       item.id === selectedComplaint?.id
-                        ? 'bg-blue-50/80 border-gov-blue shadow-sm'
+                        ? 'bg-blue-50/80 border-gov-blue shadow-sm ring-1 ring-gov-blue/20'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono font-bold text-gov-navy">{item.id}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-gov-navy">{item.id}</span>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                            item.priority === 'Urgent'
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : item.priority === 'High'
+                              ? 'bg-amber-100 text-amber-800 border-amber-300'
+                              : item.priority === 'Low'
+                              ? 'bg-slate-100 text-slate-700 border-slate-300'
+                              : 'bg-blue-100 text-blue-800 border-blue-300'
+                          }`}
+                        >
+                          {item.priority}
+                        </span>
+                        {item.attachment_url && (
+                          <span className="text-[9px] bg-slate-100 text-slate-600 px-1 py-0.5 rounded border border-slate-200">
+                            📷 Photo
+                          </span>
+                        )}
+                      </div>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           item.status === 'RESOLVED'
@@ -325,11 +407,33 @@ export default function OfficerDashboardView({
                     </div>
 
                     <h4 className="font-bold text-slate-800 line-clamp-1 mb-1">{item.title}</h4>
-                    <p className="text-[11px] text-slate-500 line-clamp-1">{item.location}</p>
+                    <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed mb-2">
+                      {item.description}
+                    </p>
 
-                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                      <span>Priority: {item.priority}</span>
-                      <span>Ward: {item.ward?.split('(')[0] || item.ward}</span>
+                    <div className="pt-2 border-t border-slate-100 space-y-1 text-[10px]">
+                      <div className="flex items-center justify-between text-slate-500">
+                        <span className="flex items-center gap-1 text-slate-700 font-medium">
+                          <MapPin size={11} className="text-red-500 shrink-0" />
+                          <span className="truncate max-w-[180px]">{item.location}</span>
+                        </span>
+                        <span className="font-medium text-gov-navy">{item.assigned_department || item.category}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-0.5">
+                        <span className="text-slate-400 font-mono">
+                          Assigned: {item.assigned_at ? new Date(item.assigned_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recorded'}
+                        </span>
+                        {item.is_overdue && item.status !== 'RESOLVED' && item.status !== 'CLOSED' ? (
+                          <span className="text-rose-700 font-bold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
+                            ⚠️ Overdue
+                          </span>
+                        ) : (
+                          <span className="text-emerald-700 font-mono font-bold">
+                            ⏱️ {item.time_remaining_text || 'Active SLA'}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
@@ -345,6 +449,7 @@ export default function OfficerDashboardView({
                 <WorkflowTracker
                   currentStatus={selectedComplaint.status}
                   audits={audits}
+                  assignedDepartment={selectedComplaint.assigned_department}
                   assignedOfficer={selectedComplaint.assigned_officer_name}
                 />
 
@@ -352,9 +457,24 @@ export default function OfficerDashboardView({
                 <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <div>
-                      <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">
-                        Work Order Reference
-                      </span>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">
+                          Work Order Reference
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase ${
+                            selectedComplaint.priority === 'Urgent'
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : selectedComplaint.priority === 'High'
+                              ? 'bg-amber-100 text-amber-800 border-amber-300'
+                              : selectedComplaint.priority === 'Low'
+                              ? 'bg-slate-100 text-slate-700 border-slate-300'
+                              : 'bg-blue-100 text-blue-800 border-blue-300'
+                          }`}
+                        >
+                          {selectedComplaint.priority} Priority
+                        </span>
+                      </div>
                       <h2 className="text-base font-extrabold text-gov-navy">{selectedComplaint.id}</h2>
                     </div>
 
@@ -369,26 +489,101 @@ export default function OfficerDashboardView({
                     </div>
                   </div>
 
+                  {/* Overdue alert banner if complaint is overdue */}
+                  {selectedComplaint.is_overdue && selectedComplaint.status !== 'RESOLVED' && selectedComplaint.status !== 'CLOSED' && (
+                    <div className="bg-rose-50 border border-rose-300 text-rose-900 p-3.5 rounded-xl text-xs flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-bold">
+                        <ShieldAlert size={18} className="text-rose-600 shrink-0" />
+                        <span>SLA TARGET BREACH: This complaint is overdue. Immediate resolution required.</span>
+                      </div>
+                      <span className="font-mono text-xs font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded">
+                        {selectedComplaint.time_remaining_text}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* SLA Target Resolution Deadline Box */}
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Submission Time</span>
+                      <strong className="text-slate-700 block mt-0.5 font-mono text-[11px]">
+                        {new Date(selectedComplaint.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Assigned Time</span>
+                      <strong className="text-slate-700 block mt-0.5 font-mono text-[11px]">
+                        {selectedComplaint.assigned_at ? new Date(selectedComplaint.assigned_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recorded'}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Resolution Deadline</span>
+                      <strong className="text-slate-800 block mt-0.5 font-mono text-[11px]">
+                        {selectedComplaint.resolution_deadline ? new Date(selectedComplaint.resolution_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Pending'}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Time Remaining</span>
+                      <strong className={`block mt-0.5 font-mono text-[11px] ${selectedComplaint.is_overdue ? 'text-rose-600 font-extrabold' : 'text-emerald-700 font-bold'}`}>
+                        {selectedComplaint.time_remaining_text || 'Active'}
+                      </strong>
+                    </div>
+                  </div>
+
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 mb-1">{selectedComplaint.title}</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-lg border border-slate-200 font-medium">
                       {selectedComplaint.description}
                     </p>
                   </div>
 
+                  {/* Supporting Photographic Evidence Registered by Citizen */}
+                  {selectedComplaint.attachment_url && (
+                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                      <span className="font-bold text-gov-navy flex items-center gap-1.5">
+                        <FileText size={15} className="text-gov-blue" />
+                        <span>Citizen Supporting Photo Evidence (Site Defect):</span>
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={selectedComplaint.attachment_url}
+                          alt="Citizen Proof"
+                          className="w-24 h-24 object-cover rounded-lg border border-slate-300 shadow-sm"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <div className="space-y-1">
+                          <p className="text-[11px] text-slate-600">Photographic proof provided during citizen grievance registration.</p>
+                          <a
+                            href={selectedComplaint.attachment_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-gov-blue hover:underline font-bold"
+                          >
+                            <span>Inspect Full Size Image</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Location</span>
+                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Location & Ward</span>
                       <strong className="text-slate-800 flex items-center gap-1 mt-0.5">
-                        <MapPin size={13} className="text-red-500" />
+                        <MapPin size={13} className="text-red-500 shrink-0" />
                         <span>{selectedComplaint.location}</span>
                       </strong>
+                      <span className="text-[10px] text-slate-500 block mt-0.5">{selectedComplaint.ward}</span>
                     </div>
                     <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Citizen Contact</span>
                       <strong className="text-slate-800 block mt-0.5">
-                        {selectedComplaint.citizen_name} (+91 {selectedComplaint.citizen_mobile})
+                        {selectedComplaint.citizen_name}
                       </strong>
+                      <span className="text-[11px] text-gov-navy font-mono block mt-0.5">
+                        +91 {selectedComplaint.citizen_mobile}
+                      </span>
                     </div>
                   </div>
 

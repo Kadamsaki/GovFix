@@ -48,6 +48,7 @@ export default function SupervisorDashboardView({
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedOfficerId, setSelectedOfficerId] = useState('');
   const [assignRemarks, setAssignRemarks] = useState('');
+  const [deptFilterOnly, setDeptFilterOnly] = useState(true);
 
   // Rejection Modal (Supervisor rejects closure -> returns to IN_PROGRESS)
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -98,7 +99,7 @@ export default function SupervisorDashboardView({
     try {
       await transitionComplaint(
         selectedComplaint.id,
-        { action: 'REVIEW', remarks: 'Supervisor verified grievance validity and location.' },
+        { action: 'REVIEW', remarks: 'Supervisor reviewed grievance details and verified ward location.' },
         supervisorUser.id
       );
       setSuccessMessage(`Complaint ${selectedComplaint.id} is now UNDER_REVIEW.`);
@@ -112,10 +113,19 @@ export default function SupervisorDashboardView({
 
   // Transition: Assign Officer (UNDER_REVIEW -> ASSIGNED or Reassign)
   const handleOpenAssignModal = () => {
-    if (officers.length > 0) {
+    if (!selectedComplaint) return;
+    // Find matching officers by department
+    const targetDept = (selectedComplaint.assigned_department || '').toLowerCase();
+    const matching = officers.filter(
+      (o) => o.department && targetDept.includes(o.department.toLowerCase().replace(' department', ''))
+    );
+    if (matching.length > 0) {
+      setSelectedOfficerId(matching[0].id);
+    } else if (officers.length > 0) {
       setSelectedOfficerId(officers[0].id);
     }
-    setAssignRemarks(`Assigned to ward zonal engineer for immediate inspection.`);
+    setDeptFilterOnly(true);
+    setAssignRemarks(`Assigned to ${selectedComplaint.assigned_department || 'field'} engineer for immediate inspection.`);
     setIsAssignModalOpen(true);
   };
 
@@ -126,7 +136,7 @@ export default function SupervisorDashboardView({
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      const isReassign = selectedComplaint.status === 'ASSIGNED';
+      const isReassign = selectedComplaint.status === 'ASSIGNED' || selectedComplaint.status === 'IN_PROGRESS';
       await transitionComplaint(
         selectedComplaint.id,
         {
@@ -136,7 +146,7 @@ export default function SupervisorDashboardView({
         },
         supervisorUser.id
       );
-      setSuccessMessage(`Officer successfully assigned to ${selectedComplaint.id}!`);
+      setSuccessMessage(`Officer successfully assigned to ${selectedComplaint.id}! Immediately visible in officer dashboard.`);
       setIsAssignModalOpen(false);
       await loadData();
     } catch (err) {
@@ -255,13 +265,7 @@ export default function SupervisorDashboardView({
               <span className="font-bold text-white block leading-tight">{supervisorUser.name}</span>
               <span className="text-[10px] text-slate-400 font-mono">ID: {supervisorUser.id}</span>
             </div>
-            <button
-              onClick={onBackToPortal}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer border border-slate-700 font-semibold"
-            >
-              <ArrowLeft size={14} />
-              <span>Public Portal</span>
-            </button>
+
             <button
               onClick={onSignOut}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-900/60 hover:bg-red-800 text-red-200 transition-colors cursor-pointer border border-red-800 font-semibold"
@@ -404,8 +408,23 @@ export default function SupervisorDashboardView({
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono font-bold text-gov-navy">{item.id}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-gov-navy">{item.id}</span>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                            item.priority === 'Urgent'
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : item.priority === 'High'
+                              ? 'bg-amber-100 text-amber-800 border-amber-300'
+                              : item.priority === 'Low'
+                              ? 'bg-slate-100 text-slate-700 border-slate-300'
+                              : 'bg-blue-100 text-blue-800 border-blue-300'
+                          }`}
+                        >
+                          {item.priority}
+                        </span>
+                      </div>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           item.status === 'CLOSED'
@@ -426,13 +445,32 @@ export default function SupervisorDashboardView({
                     <h4 className="font-bold text-slate-800 line-clamp-1 mb-1">{item.title}</h4>
                     <p className="text-[11px] text-slate-500 line-clamp-1">{item.location}</p>
 
-                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                      <span>{item.category}</span>
-                      <span>
-                        {item.assigned_officer_name
-                          ? `Officer: ${item.assigned_officer_name.split(' ')[1] || item.assigned_officer_name}`
-                          : 'Unassigned'}
-                      </span>
+                    <div className="mt-2 pt-2 border-t border-slate-100 space-y-1 text-[10px]">
+                      <div className="flex items-center justify-between text-slate-500">
+                        <span className="font-medium text-slate-600">{item.assigned_department || item.category}</span>
+                        {item.is_overdue ? (
+                          <span className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                            ⚠️ Overdue
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 font-mono">{item.time_remaining_text || 'SLA Active'}</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-0.5">
+                        <span className="text-slate-400 font-mono">
+                          {new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {item.assigned_officer_name ? (
+                          <span className="font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">
+                            Officer: {item.assigned_officer_name.split(' ')[1] || item.assigned_officer_name}
+                          </span>
+                        ) : (
+                          <span className="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            Awaiting Officer Assignment
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
@@ -448,6 +486,7 @@ export default function SupervisorDashboardView({
                 <WorkflowTracker
                   currentStatus={selectedComplaint.status}
                   audits={audits}
+                  assignedDepartment={selectedComplaint.assigned_department}
                   assignedOfficer={selectedComplaint.assigned_officer_name}
                 />
 
@@ -455,9 +494,24 @@ export default function SupervisorDashboardView({
                 <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <div>
-                      <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">
-                        Supervision File Ref
-                      </span>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">
+                          Supervision File Ref
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase ${
+                            selectedComplaint.priority === 'Urgent'
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : selectedComplaint.priority === 'High'
+                              ? 'bg-amber-100 text-amber-800 border-amber-300'
+                              : selectedComplaint.priority === 'Low'
+                              ? 'bg-slate-100 text-slate-700 border-slate-300'
+                              : 'bg-blue-100 text-blue-800 border-blue-300'
+                          }`}
+                        >
+                          {selectedComplaint.priority} Priority
+                        </span>
+                      </div>
                       <h2 className="text-base font-extrabold text-gov-navy">{selectedComplaint.id}</h2>
                     </div>
 
@@ -472,6 +526,19 @@ export default function SupervisorDashboardView({
                     </div>
                   </div>
 
+                  {/* Overdue SLA Notice banner if overdue */}
+                  {selectedComplaint.is_overdue && (
+                    <div className="bg-rose-50 border border-rose-300 text-rose-900 p-3 rounded-lg text-xs flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-bold">
+                        <ShieldAlert size={16} className="text-rose-600 shrink-0" />
+                        <span>OVERDUE ALERT: Target resolution deadline has elapsed. Expedited supervisory intervention required.</span>
+                      </div>
+                      <span className="font-mono text-[11px] font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded">
+                        {selectedComplaint.time_remaining_text}
+                      </span>
+                    </div>
+                  )}
+
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 mb-1">{selectedComplaint.title}</h3>
                     <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200">
@@ -481,18 +548,76 @@ export default function SupervisorDashboardView({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Category & Ward</span>
+                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Category & Responsible Dept</span>
                       <strong className="text-slate-800 block mt-0.5">
-                        {selectedComplaint.category} • {selectedComplaint.ward}
+                        {selectedComplaint.category}
                       </strong>
+                      <span className="text-[11px] text-gov-blue font-semibold block mt-0.5">
+                        {selectedComplaint.assigned_department || 'Municipal Grievance Cell'}
+                      </span>
                     </div>
                     <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Assigned Officer</span>
-                      <strong className="text-slate-800 block mt-0.5">
-                        {selectedComplaint.assigned_officer_name || 'None (Awaiting Assignment)'}
-                      </strong>
+                      <span className="text-slate-400 block text-[10px] uppercase font-bold">Assignment Status</span>
+                      {selectedComplaint.assigned_officer_name ? (
+                        <div className="mt-0.5">
+                          <strong className="text-slate-800 block">{selectedComplaint.assigned_officer_name}</strong>
+                          <span className="text-[10px] text-emerald-700 font-medium block">
+                            ✓ Auto-assigned by system based on problem type
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="inline-block mt-1 font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px]">
+                          Awaiting Officer Assignment
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {/* SLA Resolution Deadline Bar */}
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Resolution Deadline (SLA)</span>
+                      <strong className="font-mono text-slate-800">
+                        {selectedComplaint.resolution_deadline ? new Date(selectedComplaint.resolution_deadline).toLocaleString() : 'Pending'}
+                      </strong>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">SLA Timeline Status</span>
+                      <span className={`font-mono font-bold text-[11px] ${selectedComplaint.is_overdue ? 'text-rose-600' : 'text-emerald-700'}`}>
+                        {selectedComplaint.time_remaining_text || 'Active'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Citizen Photo Attachment Preview */}
+                  {selectedComplaint.attachment_url && (
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                      <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                        <FileText size={14} className="text-gov-blue" />
+                        <span>Citizen Supporting Photographic Evidence:</span>
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={selectedComplaint.attachment_url}
+                          alt="Citizen Proof"
+                          className="w-20 h-20 object-cover rounded-lg border border-slate-300 shadow-sm"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <div className="space-y-1">
+                          <p className="text-[11px] text-slate-500">Photographic proof registered with citizen grievance filing.</p>
+                          <a
+                            href={selectedComplaint.attachment_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-gov-blue hover:underline font-bold"
+                          >
+                            <span>Inspect Full Size Image</span>
+                            <ExternalLink size={11} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Resolution Proof Review Section (For Step 2 Approval) */}
                   {selectedComplaint.resolution_remarks && (
@@ -563,16 +688,24 @@ export default function SupervisorDashboardView({
                         </button>
                       )}
 
-                      {/* Action C: Reassign Officer (if ASSIGNED) */}
+                      {/* Action C: If ASSIGNED, officer is already auto-assigned; reassign is optional */}
                       {selectedComplaint.status === 'ASSIGNED' && (
-                        <button
-                          onClick={handleOpenAssignModal}
-                          disabled={actionLoading}
-                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg border border-slate-300 flex items-center gap-1.5 cursor-pointer transition-colors"
-                        >
-                          <RotateCcw size={13} />
-                          <span>Reassign Officer</span>
-                        </button>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <div className="text-xs bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5">
+                            <CheckCircle2 size={14} className="text-emerald-600" />
+                            <span>
+                              Field Officer <strong>{selectedComplaint.assigned_officer_name || 'Assigned'}</strong> auto-dispatched based on problem type
+                            </span>
+                          </div>
+                          <button
+                            onClick={handleOpenAssignModal}
+                            disabled={actionLoading}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg border border-slate-300 flex items-center gap-1.5 cursor-pointer transition-colors"
+                          >
+                            <RotateCcw size={13} />
+                            <span>Reassign Officer (Optional)</span>
+                          </button>
+                        </div>
                       )}
 
                       {/* If IN_PROGRESS -> Show active work status */}
@@ -639,11 +772,16 @@ export default function SupervisorDashboardView({
       {/* Assignment Modal */}
       {isAssignModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden">
+          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden">
             <div className="bg-gov-navy text-white px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <UserPlus size={18} />
-                <h3 className="text-sm font-bold">Assign Grievance to Municipal Officer</h3>
+                <UserPlus size={18} className="text-amber-400" />
+                <div>
+                  <h3 className="text-sm font-bold">Assign Field Officer & Dispatch Work Order</h3>
+                  <p className="text-[10px] text-slate-300 font-mono">
+                    Grievance: {selectedComplaint?.id} • Dept: {selectedComplaint?.assigned_department || 'Municipal Grievance'}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setIsAssignModalOpen(false)}
@@ -654,9 +792,26 @@ export default function SupervisorDashboardView({
             </div>
 
             <form onSubmit={handleConfirmAssignment} className="p-6 space-y-4 text-xs">
+              
+              {/* Department eligibility filter checkbox */}
+              <div className="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                <span className="text-[11px] font-semibold text-slate-700">
+                  Target Dept: <strong className="text-gov-navy">{selectedComplaint?.assigned_department || 'General'}</strong>
+                </span>
+                <label className="flex items-center gap-1.5 text-[11px] text-slate-600 cursor-pointer font-medium">
+                  <input
+                    type="checkbox"
+                    checked={deptFilterOnly}
+                    onChange={(e) => setDeptFilterOnly(e.target.checked)}
+                    className="rounded text-gov-blue"
+                  />
+                  <span>Show eligible department officers only</span>
+                </label>
+              </div>
+
               <div>
                 <label className="block font-bold text-gov-navy mb-1">
-                  Select Department Officer *
+                  Select Field Officer (Inspect Workload) *
                 </label>
                 <select
                   value={selectedOfficerId}
@@ -664,27 +819,59 @@ export default function SupervisorDashboardView({
                   className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue text-xs font-medium"
                   required
                 >
-                  {officers.map((off) => (
-                    <option key={off.id} value={off.id}>
-                      {off.name} • {off.department} ({off.designation})
-                    </option>
-                  ))}
+                  {officers
+                    .filter((off) => {
+                      if (!deptFilterOnly || !selectedComplaint?.assigned_department) return true;
+                      const cleanDept = selectedComplaint.assigned_department.toLowerCase().replace(' department', '').trim();
+                      return (off.department || '').toLowerCase().includes(cleanDept);
+                    })
+                    .map((off) => (
+                      <option key={off.id} value={off.id}>
+                        {off.name} • {off.department} ({off.active_complaints_count ?? 0} active tasks pending){off.active_complaints_count === 0 ? ' — [Available / Low Workload]' : ''}
+                      </option>
+                    ))}
                 </select>
               </div>
 
+              {/* Workload card for selected officer */}
+              {(() => {
+                const offObj = officers.find((o) => o.id === selectedOfficerId);
+                if (!offObj) return null;
+                return (
+                  <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-gov-navy">{offObj.name}</span>
+                      <span className="font-mono text-[11px] px-2 py-0.5 rounded font-bold bg-blue-100 text-gov-blue">
+                        {offObj.active_complaints_count ?? 0} active complaints currently pending
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      {offObj.department} • {offObj.designation} (Contact: {offObj.mobile})
+                    </p>
+                  </div>
+                );
+              })()}
+
               <div>
                 <label className="block font-bold text-gov-navy mb-1">
-                  Supervisory Dispatch Instructions
+                  Supervisory Dispatch Instructions & Remarks
                 </label>
                 <textarea
                   rows={2}
                   value={assignRemarks}
                   onChange={(e) => setAssignRemarks(e.target.value)}
                   className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-gov-blue"
+                  placeholder="Enter specific instructions, priority remarks, or site details for the officer..."
                 />
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2">
+              {/* SLA Notice */}
+              <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-900 flex items-center justify-between">
+                <span>⏱️ Priority SLA: <strong>{selectedComplaint?.priority} ({selectedComplaint?.time_remaining_text || 'Active'})</strong></span>
+                <span className="text-[10px] text-amber-700 italic">Deadline preserved upon reassignment</span>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsAssignModalOpen(false)}
@@ -695,10 +882,10 @@ export default function SupervisorDashboardView({
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-5 py-2 rounded-lg bg-gov-blue hover:bg-gov-blueHover text-white font-bold flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-gov-blue hover:bg-gov-blueHover text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
                 >
                   <Check size={14} />
-                  <span>Confirm Assignment</span>
+                  <span>Confirm Assignment & Notify Officer</span>
                 </button>
               </div>
             </form>
