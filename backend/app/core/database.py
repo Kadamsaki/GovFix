@@ -1,16 +1,33 @@
 import os
 import shutil
+from urllib.parse import quote_plus
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+
+def normalize_database_url(raw_url: str) -> str:
+    if not raw_url:
+        return raw_url
+    url = raw_url.strip()
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    
+    if "://" in url:
+        scheme_part, rest = url.split("://", 1)
+        at_parts = rest.split("@")
+        if len(at_parts) > 2:
+            host_db = at_parts[-1]
+            user_pass = "@".join(at_parts[:-1])
+            if ":" in user_pass:
+                user, password = user_pass.split(":", 1)
+                url = f"{scheme_part}://{user}:{quote_plus(password)}@{host_db}"
+    return url
 
 raw_db_url = os.getenv("DATABASE_URL")
 
 if raw_db_url:
-    # Normalize postgres:// to postgresql:// for modern SQLAlchemy compatibility
-    if raw_db_url.startswith("postgres://"):
-        DATABASE_URL = raw_db_url.replace("postgres://", "postgresql://", 1)
-    else:
-        DATABASE_URL = raw_db_url
+    DATABASE_URL = normalize_database_url(raw_db_url)
 else:
     # Check if running in Vercel Serverless environment
     if os.getenv("VERCEL"):
